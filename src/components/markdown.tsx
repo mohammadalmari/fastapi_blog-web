@@ -1,8 +1,8 @@
 import type { ComponentProps } from "react";
+import { useEffect, useState } from "react";
 import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 
-import rehypeHighlight from "rehype-highlight";
 import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 
@@ -22,7 +22,26 @@ import { cn } from "@/lib/utils";
 // Highlighting runs after sanitizing: its output is ours, and the sanitizer
 // would strip the classes it adds.
 const remarkPlugins = [remarkGfm];
-const rehypePlugins = [rehypeSanitize, rehypeHighlight];
+
+// The highlighter and its grammars are as large as everything else here
+// together, and most posts have no code. It is fetched the first time a
+// post with a code block is shown; until then the code shows plain.
+type Highlighter = typeof import("rehype-highlight").default;
+let highlighter: Highlighter | null = null;
+let loading: Promise<Highlighter> | null = null;
+
+function loadHighlighter() {
+  loading ??= import("rehype-highlight").then((module) => {
+    highlighter = module.default;
+    return highlighter;
+  });
+  return loading;
+}
+
+/** Fenced or indented code: the only thing the highlighter has work on. */
+export function hasCode(markdown: string): boolean {
+  return /^ {0,3}(```|~~~)|^( {4}|\t)\S/m.test(markdown);
+}
 
 // The page's title is the only h1, so headings inside a post start one
 // level down.
@@ -70,11 +89,27 @@ export function Markdown({
   children: string;
   className?: string;
 }) {
+  const [highlight, setHighlight] = useState(() => highlighter);
+  const needsHighlighter = highlight === null && hasCode(children);
+
+  useEffect(() => {
+    if (!needsHighlighter) return;
+    let current = true;
+    void loadHighlighter().then((loaded) => {
+      if (current) setHighlight(() => loaded);
+    });
+    return () => {
+      current = false;
+    };
+  }, [needsHighlighter]);
+
   return (
     <div className={cn("markdown", className)}>
       <ReactMarkdown
         remarkPlugins={remarkPlugins}
-        rehypePlugins={rehypePlugins}
+        rehypePlugins={
+          highlight ? [rehypeSanitize, highlight] : [rehypeSanitize]
+        }
         components={components}
       >
         {children}

@@ -25,9 +25,21 @@ function RootLayout() {
   return (
     <>
       <HeadContent />
-      <div className="mx-auto flex min-h-svh max-w-[1120px] flex-col px-6">
+      {/* The first stop for a keyboard: past the header, to the page. */}
+      <a
+        href="#main"
+        className="sr-only z-50 rounded-md bg-primary px-4 py-3 font-semibold text-primary-foreground focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+      >
+        Skip to the page
+      </a>
+      <div className="mx-auto flex min-h-svh max-w-[1120px] flex-col px-4 sm:px-6">
         <SiteHeader />
-        <main className="flex flex-1 flex-col">
+        {/* tabIndex -1: the skip link can move focus here. */}
+        <main
+          id="main"
+          tabIndex={-1}
+          className="flex flex-1 flex-col outline-none"
+        >
           <Outlet />
           {/* Carries the margin line down to the footer on a short page. */}
           <MarginRow className="flex-1" railClassName="pt-0">

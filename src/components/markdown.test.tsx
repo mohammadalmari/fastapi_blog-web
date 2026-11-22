@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 
-import { Markdown } from "./markdown";
+import { hasCode, Markdown } from "./markdown";
 
 const show = (source: string) => render(<Markdown>{source}</Markdown>);
 
@@ -37,8 +37,28 @@ describe("Markdown", () => {
 
     expect(screen.getByRole("table")).toBeInTheDocument();
     expect(container.querySelector("pre code.language-python")).not.toBeNull();
-    expect(container.querySelector(".hljs-string")).not.toBeNull();
   });
+
+  it("highlights code once the highlighter has arrived", async () => {
+    const { container } = show("```python\nprint('hi')\n```");
+
+    await waitFor(() =>
+      expect(container.querySelector(".hljs-string")).not.toBeNull()
+    );
+  });
+
+  it.each([
+    ["a fenced block", "Text.\n\n```\ncode\n```", true],
+    ["a tilde fence", "~~~js\nx\n~~~", true],
+    ["an indented block", "Text.\n\n    indented code", true],
+    ["inline code only", "Use `x` here.", false],
+    ["plain prose", "Just words.\n\nMore words.", false],
+  ])(
+    "knows whether there is code to highlight: %s",
+    (_name, source, expected) => {
+      expect(hasCode(source)).toBe(expected);
+    }
+  );
 
   it("lets each paragraph find its own direction", () => {
     show("Hello\n\nمرحبا");

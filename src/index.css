@@ -138,6 +138,28 @@
   * {
     @apply border-border outline-ring/50;
     }
+  /*
+   * Where the keyboard is, always: a link or anything else without a focus
+   * style of its own gets this one. shadcn's controls draw their own ring
+   * and switch the outline off, which wins over this layer.
+   */
+  :focus-visible {
+    outline: 3px solid var(--ring);
+    outline-offset: 3px;
+    }
+  /* Anchored targets (the comments, the main content) clear the header. */
+  html {
+    scroll-padding-top: 1rem;
+    }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+      }
+    }
   body {
     @apply bg-background text-foreground;
     }

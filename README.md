@@ -12,10 +12,9 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-Seven stages of the plan are built: the foundation, accounts, reading,
-writing, comments and likes, account settings, and administration. What is
-left is hardening: accessibility, small screens, dark mode, the bundle,
-running the real-API tests in CI, and production serving.
+Every stage of the plan is built: reading, writing, comments and likes,
+accounts, settings and administration, checked for accessibility in both
+themes and at phone width. "Serving the build" says what production needs.
 
 ## Getting started
 
@@ -211,7 +210,8 @@ There are two sets:
   and shared (`e2e-api/people.ts`). Each test arrives from an address of
   its own (`e2e-api/fixtures.ts`), because the API limits logins and
   sign-ups per address and a whole run from one would go over. It is not
-  in CI yet.
+  in CI, which has only this repository; run it before pushing a change the
+  API is part of.
 
 - **Lint** is ESLint with the TypeScript, React Hooks and React Refresh
   rules, plus sorted imports and exports (`eslint.config.js`).
@@ -219,11 +219,23 @@ There are two sets:
 - **Format** is Prettier with the Tailwind plugin, which also sorts class
   names inside `cn()` and `cva()` (`.prettierrc`).
 
-Format, lint, type check, build and both sets of tests also run on GitHub
-for every push to `main` and every pull request
+Format, lint, type check, build and the tests also run on GitHub for every
+push to `main` and every pull request, except the real-API browser tests,
+which need the API's code beside this repository and run locally
 ([.github/workflows/ci.yml](.github/workflows/ci.yml)), with `--check` on
 the formatter and `--frozen-lockfile` on the install, so unformatted code or
 a stale `bun.lock` fails.
+
+### Accessibility and small screens
+
+`e2e/accessibility.spec.ts` runs axe against every page in `e2e/pages.ts`,
+in the light and the dark theme, to WCAG 2.2 AA, and fails on anything the
+Content-Security-Policy blocks. `e2e/small-screens.spec.ts` loads every page
+at 360 pixels wide and fails if anything scrolls sideways. A new page goes
+in `e2e/pages.ts`, and both check it.
+
+Controls are 40 pixels tall, the large ones 44; the keyboard's first stop is
+a "Skip to the page" link; on a phone the header's links are behind a menu.
 
 ### Components
 
@@ -249,3 +261,27 @@ Add them with `bun add` (`bun add -d` for tools), not by editing
 version published more recently than that, so a compromised release has time
 to be noticed and pulled. If you need a fix sooner, wait, or pin the last
 version old enough.
+
+## Serving the build
+
+`bun run build` writes the app to `dist/`: static files, one `index.html`
+and the hashed files it loads. Whatever serves them in production must:
+
+- **Pass `/api`, `/media` and `/health` on to the API, on the same origin.**
+  The app calls the API at its own address. A separate API origin would
+  need CORS, and the API's `SameSite=Strict` refresh cookie would not be
+  sent, so nobody would stay logged in.
+- **Answer every other address with `index.html`.** The app routes itself;
+  `/posts/some-slug` has no file of its own.
+- **Send the headers in `security-headers.ts`** on every page, among them a
+  Content-Security-Policy with no inline script. `vite preview` sends the
+  same, so the browser tests run under them.
+- **Accept request bodies of at least 3 MB** on `/api`. The API takes an
+  avatar of up to 2 MB; some servers stop at 1 MB by default.
+- **Cache `dist/assets/` for good and `index.html` not at all.** Built
+  files change name with each build; `index.html` points at the new ones.
+
+Start the API with the address of whatever forwards to it in
+`--forwarded-allow-ips`, and the site's host in `FASTAPI_ALLOWED_HOSTS`. The
+API then counts rate limits by the visitor's address, and its Origin check
+and HTTPS redirect see the scheme the visitor used.

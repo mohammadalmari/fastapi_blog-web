@@ -5,6 +5,8 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 
+import { SECURITY_HEADERS } from "./security-headers.ts";
+
 // The app always calls the API on its own origin. Here the dev and preview
 // servers pass those paths on, so there is no CORS and the API's
 // SameSite=Strict refresh cookie is sent. The Host header is left alone:
@@ -35,10 +37,11 @@ export default defineConfig({
     },
   },
   server: { proxy },
-  preview: { proxy },
+  // The headers production must send, so the browser tests run under them.
+  preview: { proxy, headers: SECURITY_HEADERS },
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}", "security-headers.test.ts"],
   },
 });
