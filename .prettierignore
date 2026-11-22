@@ -1,7 +1,19 @@
-node_modules/
-coverage/
-.pnpm-store/
-pnpm-lock.yaml
-package-lock.json
-pnpm-lock.yaml
-yarn.lock
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+/package-lock.json
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+/next-env.d.ts
