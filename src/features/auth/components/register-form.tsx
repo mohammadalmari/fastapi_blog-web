@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { authLogin, authRegister } from "@/api/generated/sdk.gen";
 import { showErrorOnForm } from "@/features/auth/form-errors";
 import { useSession } from "@/features/auth/hooks";
+import { usernameSchema } from "@/features/users/profile-form";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -24,11 +25,7 @@ import { Input } from "@/components/ui/input";
 // fields.
 const schema = z.object({
   email: z.string().trim().min(1, "Enter your email."),
-  username: z
-    .string()
-    .trim()
-    .min(3, "Use at least 3 characters.")
-    .max(30, "Use at most 30 characters."),
+  username: usernameSchema,
   password: z
     .string()
     .min(1, "Choose a password.")

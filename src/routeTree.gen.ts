@@ -19,6 +19,7 @@ import { Route as PostsSlugRouteImport } from "./routes/posts/$slug";
 import { Route as UsersUsernameRouteImport } from "./routes/users/$username";
 import { Route as AuthenticatedMePostsRouteImport } from "./routes/_authenticated/me/posts";
 import { Route as AuthenticatedSettingsProfileRouteImport } from "./routes/_authenticated/settings/profile";
+import { Route as AuthenticatedSettingsSecurityRouteImport } from "./routes/_authenticated/settings/security";
 import { Route as AuthenticatedPostsSlugEditRouteImport } from "./routes/_authenticated/posts.$slug.edit";
 
 const IndexRoute = IndexRouteImport.update({
@@ -71,6 +72,12 @@ const AuthenticatedSettingsProfileRoute =
     path: "/settings/profile",
     getParentRoute: () => AuthenticatedRoute,
   } as any);
+const AuthenticatedSettingsSecurityRoute =
+  AuthenticatedSettingsSecurityRouteImport.update({
+    id: "/settings/security",
+    path: "/settings/security",
+    getParentRoute: () => AuthenticatedRoute,
+  } as any);
 const AuthenticatedPostsSlugEditRoute =
   AuthenticatedPostsSlugEditRouteImport.update({
     id: "/posts/$slug/edit",
@@ -88,6 +95,7 @@ export interface FileRoutesByFullPath {
   "/users/$username": typeof UsersUsernameRoute;
   "/me/posts": typeof AuthenticatedMePostsRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
+  "/settings/security": typeof AuthenticatedSettingsSecurityRoute;
   "/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
 }
 export interface FileRoutesByTo {
@@ -100,6 +108,7 @@ export interface FileRoutesByTo {
   "/users/$username": typeof UsersUsernameRoute;
   "/me/posts": typeof AuthenticatedMePostsRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
+  "/settings/security": typeof AuthenticatedSettingsSecurityRoute;
   "/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
 }
 export interface FileRoutesById {
@@ -114,6 +123,7 @@ export interface FileRoutesById {
   "/users/$username": typeof UsersUsernameRoute;
   "/_authenticated/me/posts": typeof AuthenticatedMePostsRoute;
   "/_authenticated/settings/profile": typeof AuthenticatedSettingsProfileRoute;
+  "/_authenticated/settings/security": typeof AuthenticatedSettingsSecurityRoute;
   "/_authenticated/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
 }
 export interface FileRouteTypes {
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | "/users/$username"
     | "/me/posts"
     | "/settings/profile"
+    | "/settings/security"
     | "/posts/$slug/edit";
   fileRoutesByTo: FileRoutesByTo;
   to:
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | "/users/$username"
     | "/me/posts"
     | "/settings/profile"
+    | "/settings/security"
     | "/posts/$slug/edit";
   id:
     | "__root__"
@@ -153,6 +165,7 @@ export interface FileRouteTypes {
     | "/users/$username"
     | "/_authenticated/me/posts"
     | "/_authenticated/settings/profile"
+    | "/_authenticated/settings/security"
     | "/_authenticated/posts/$slug/edit";
   fileRoutesById: FileRoutesById;
 }
@@ -238,6 +251,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthenticatedSettingsProfileRouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
+    "/_authenticated/settings/security": {
+      id: "/_authenticated/settings/security";
+      path: "/settings/security";
+      fullPath: "/settings/security";
+      preLoaderRoute: typeof AuthenticatedSettingsSecurityRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
     "/_authenticated/posts/$slug/edit": {
       id: "/_authenticated/posts/$slug/edit";
       path: "/posts/$slug/edit";
@@ -252,6 +272,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedWriteRoute: typeof AuthenticatedWriteRoute;
   AuthenticatedMePostsRoute: typeof AuthenticatedMePostsRoute;
   AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute;
+  AuthenticatedSettingsSecurityRoute: typeof AuthenticatedSettingsSecurityRoute;
   AuthenticatedPostsSlugEditRoute: typeof AuthenticatedPostsSlugEditRoute;
 }
 
@@ -259,6 +280,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedWriteRoute: AuthenticatedWriteRoute,
   AuthenticatedMePostsRoute: AuthenticatedMePostsRoute,
   AuthenticatedSettingsProfileRoute: AuthenticatedSettingsProfileRoute,
+  AuthenticatedSettingsSecurityRoute: AuthenticatedSettingsSecurityRoute,
   AuthenticatedPostsSlugEditRoute: AuthenticatedPostsSlugEditRoute,
 };
 

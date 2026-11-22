@@ -37,6 +37,7 @@ test.beforeAll(async ({ playwright, baseURL }) => {
 async function openAs(page: Page, account: CreatedAccount, slug: string) {
   await page.goto(`/login?redirect=/posts/${slug}`);
   await logIn(page, account);
+  await expect(page).toHaveURL(new RegExp(`/posts/${slug}$`));
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 }
 

@@ -12,13 +12,13 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-Five stages of the plan are built. The foundation: routing, the generated
+Six stages of the plan are built. The foundation: routing, the generated
 API client, the page layout, error handling and tests. Accounts: sign up,
 log in, stay logged in across reloads and tabs, log out. Reading: the feed
 with its filters, posts with their Markdown rendered safely, profiles.
-Writing: an editor with a live preview, drafts, publishing. And taking
-part: comments with one level of replies, and likes on posts and comments.
-Account settings come next, then administration.
+Writing: an editor with a live preview, drafts, publishing. Taking part:
+comments, replies and likes. And account settings: profile, picture,
+password, log out everywhere. Administration comes next.
 
 ## Getting started
 
@@ -132,6 +132,21 @@ one level deep, as in the API.
 - A visitor who clicks Like, or wants to comment, is sent to log in and
   brought back to the post.
 
+### Account settings
+
+`/settings/profile` edits what others see (name, username, bio, picture)
+and `/settings/security` changes the password and logs out everywhere.
+
+- A picture is checked before it is sent (type and size,
+  `src/features/users/avatar.ts`). The API checks again, looks inside the
+  file, and re-encodes it.
+- Changing the password ends every session on the server, this one
+  included. The page logs out and leaves a sentence for the login page to
+  show once (`src/lib/notice.ts`), since the guards that send the reader
+  there don't know why.
+- The profile form sends only what changed; an emptied name or bio is sent
+  as an empty string, which clears it.
+
 A page for something that doesn't exist, was deleted, or may not be seen
 by this reader (someone else's draft) is the same "not found" page: a
 loader wraps its request in `orNotFound` (`src/api/not-found.ts`).
@@ -175,7 +190,7 @@ There are two sets:
 - `bun run test:e2e` (`e2e/`) answers the pages' requests itself, needs no
   API, and runs in CI.
 - `bun run test:e2e:api` (`e2e-api/`) runs the flows that need the real API:
-  sign-up, login, two tabs, reading and writing posts, comments and likes.
+  sign-up, login, two tabs, reading and writing posts, comments and likes, account settings.
   It starts its own API from `../fastapi_blog` on
   port 8010, in a database named `e2e_draftwork_web` on the server the API's
   `.env` points at, and drops that database before and after. Three

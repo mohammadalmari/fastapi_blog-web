@@ -54,8 +54,11 @@ test("a private page sends a visitor to log in, then brings them back", async ({
 
   await expect(page).toHaveURL(/\/settings\/profile$/);
   await expect(
-    page.getByRole("heading", { level: 1, name: account.username })
+    page.getByRole("heading", { level: 1, name: "Your profile" })
   ).toBeVisible();
+  await expect(page.getByLabel("Username", { exact: true })).toHaveValue(
+    account.username
+  );
   await expect(page.getByText(account.email)).toBeVisible();
   // A new account is a reader: it may comment, and may not write posts.
   await expect(page.getByText("Comment on posts")).toBeVisible();

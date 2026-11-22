@@ -49,7 +49,7 @@ function ProfilePage() {
         contentClassName="pt-7 pb-8"
         rail={
           <>
-            <UserAvatar person={profile} size="lg" className="size-20" />
+            <UserAvatar person={profile} size="lg" className="size-20!" />
             <div>
               <div>Joined</div>
               <time
