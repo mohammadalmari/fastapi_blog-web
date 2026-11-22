@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
 import { Route as LoginRouteImport } from "./routes/login";
 import { Route as RegisterRouteImport } from "./routes/register";
 import { Route as TagsRouteImport } from "./routes/tags";
+import { Route as PostsSlugRouteImport } from "./routes/posts/$slug";
+import { Route as UsersUsernameRouteImport } from "./routes/users/$username";
 import { Route as AuthenticatedSettingsProfileRouteImport } from "./routes/_authenticated/settings/profile";
 
 const IndexRoute = IndexRouteImport.update({
@@ -40,6 +42,16 @@ const TagsRoute = TagsRouteImport.update({
   path: "/tags",
   getParentRoute: () => rootRouteImport,
 } as any);
+const PostsSlugRoute = PostsSlugRouteImport.update({
+  id: "/posts/$slug",
+  path: "/posts/$slug",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const UsersUsernameRoute = UsersUsernameRouteImport.update({
+  id: "/users/$username",
+  path: "/users/$username",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const AuthenticatedSettingsProfileRoute =
   AuthenticatedSettingsProfileRouteImport.update({
     id: "/settings/profile",
@@ -52,6 +64,8 @@ export interface FileRoutesByFullPath {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/posts/$slug": typeof PostsSlugRoute;
+  "/users/$username": typeof UsersUsernameRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
 }
 export interface FileRoutesByTo {
@@ -59,6 +73,8 @@ export interface FileRoutesByTo {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/posts/$slug": typeof PostsSlugRoute;
+  "/users/$username": typeof UsersUsernameRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
 }
 export interface FileRoutesById {
@@ -68,13 +84,29 @@ export interface FileRoutesById {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/posts/$slug": typeof PostsSlugRoute;
+  "/users/$username": typeof UsersUsernameRoute;
   "/_authenticated/settings/profile": typeof AuthenticatedSettingsProfileRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/login" | "/register" | "/tags" | "/settings/profile";
+  fullPaths:
+    | "/"
+    | "/login"
+    | "/register"
+    | "/tags"
+    | "/posts/$slug"
+    | "/users/$username"
+    | "/settings/profile";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/login" | "/register" | "/tags" | "/settings/profile";
+  to:
+    | "/"
+    | "/login"
+    | "/register"
+    | "/tags"
+    | "/posts/$slug"
+    | "/users/$username"
+    | "/settings/profile";
   id:
     | "__root__"
     | "/"
@@ -82,6 +114,8 @@ export interface FileRouteTypes {
     | "/login"
     | "/register"
     | "/tags"
+    | "/posts/$slug"
+    | "/users/$username"
     | "/_authenticated/settings/profile";
   fileRoutesById: FileRoutesById;
 }
@@ -91,6 +125,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute;
   RegisterRoute: typeof RegisterRoute;
   TagsRoute: typeof TagsRoute;
+  PostsSlugRoute: typeof PostsSlugRoute;
+  UsersUsernameRoute: typeof UsersUsernameRoute;
 }
 
 declare module "@tanstack/react-router" {
@@ -130,6 +166,20 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TagsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/posts/$slug": {
+      id: "/posts/$slug";
+      path: "/posts/$slug";
+      fullPath: "/posts/$slug";
+      preLoaderRoute: typeof PostsSlugRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/users/$username": {
+      id: "/users/$username";
+      path: "/users/$username";
+      fullPath: "/users/$username";
+      preLoaderRoute: typeof UsersUsernameRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/_authenticated/settings/profile": {
       id: "/_authenticated/settings/profile";
       path: "/settings/profile";
@@ -158,6 +208,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   TagsRoute: TagsRoute,
+  PostsSlugRoute: PostsSlugRoute,
+  UsersUsernameRoute: UsersUsernameRoute,
 };
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

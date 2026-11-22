@@ -1,4 +1,6 @@
 import type { TagCount } from "@/api/generated/types.gen";
+import { TagLink } from "@/features/posts/components/tag-link";
+import { count } from "@/lib/format";
 
 import {
   Empty,
@@ -6,12 +8,6 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from "@/components/ui/empty";
-
-const posts = new Intl.PluralRules("en");
-
-function postCount(count: number) {
-  return `${count} ${posts.select(count) === "one" ? "post" : "posts"}`;
-}
 
 /** Tags in the order the API gives them: most used first. */
 export function TagList({ tags }: { tags: TagCount[] }) {
@@ -33,17 +29,14 @@ export function TagList({ tags }: { tags: TagCount[] }) {
       {tags.map((tag) => (
         <li
           key={tag.name}
-          className="flex min-h-11 items-baseline justify-between gap-4 border-b border-border py-2"
+          className="flex min-h-11 items-baseline justify-between gap-4 border-b border-border"
         >
-          {/* Tags are written by users, in any script. */}
-          <span
-            dir="auto"
+          <TagLink
+            tag={tag.name}
             className="min-w-0 text-lg font-semibold break-words"
-          >
-            {tag.name}
-          </span>
+          />
           <span className="shrink-0 text-sm text-muted-foreground">
-            {postCount(tag.count)}
+            {count(tag.count, "post")}
           </span>
         </li>
       ))}

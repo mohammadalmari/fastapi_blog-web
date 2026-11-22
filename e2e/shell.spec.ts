@@ -1,29 +1,21 @@
 import { expect, test } from "@playwright/test";
 
-// These tests need no API: the one request the pages make is answered here.
-// Flows against the real API start with the accounts stage.
+import { mockReading, tags } from "./mocks.ts";
 
 const TAGS = "**/api/v1/tags";
 
 test("the header leads from the posts to the tags", async ({ page }) => {
-  await page.route(TAGS, (route) =>
-    route.fulfill({
-      json: [
-        { name: "python", count: 14 },
-        { name: "security", count: 1 },
-      ],
-    })
-  );
+  await mockReading(page);
 
   await page.goto("/");
   await page
     .getByRole("navigation", { name: "Main" })
-    .getByText("Tags")
+    .getByRole("link", { name: "Tags" })
     .click();
 
   await expect(page).toHaveURL(/\/tags$/);
   await expect(page.getByRole("heading", { name: "Tags" })).toBeVisible();
-  await expect(page.getByRole("listitem")).toHaveText([
+  await expect(page.getByRole("main").getByRole("listitem")).toHaveText([
     /python.*14 posts/,
     /security.*1 post$/,
   ]);
@@ -33,6 +25,8 @@ test("the header leads from the posts to the tags", async ({ page }) => {
 test("an unknown address says nothing is there and offers a way back", async ({
   page,
 }) => {
+  await mockReading(page);
+
   await page.goto("/no/such/page");
 
   await expect(
@@ -51,13 +45,10 @@ test("a failed request shows the API's request id, and trying again recovers", a
     fail
       ? route.fulfill({
           status: 500,
-          headers: {
-            "X-Request-ID": "req-test-123",
-            "Access-Control-Expose-Headers": "X-Request-ID",
-          },
+          headers: { "X-Request-ID": "req-test-123" },
           json: { detail: "Internal Server Error" },
         })
-      : route.fulfill({ json: [{ name: "python", count: 3 }] })
+      : route.fulfill({ json: tags })
   );
 
   await page.goto("/tags");
@@ -70,5 +61,5 @@ test("a failed request shows the API's request id, and trying again recovers", a
   fail = false;
   await page.getByRole("button", { name: "Try again" }).click();
 
-  await expect(page.getByRole("listitem")).toHaveText(/python.*3 posts/);
+  await expect(page.getByRole("main").getByRole("listitem")).toHaveCount(2);
 });

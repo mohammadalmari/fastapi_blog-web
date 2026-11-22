@@ -12,10 +12,11 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-Two stages of the plan are built. The foundation: routing, the generated
-API client, the page layout, error handling and tests. And accounts: sign
-up, log in, stay logged in across reloads and tabs, log out, and pages that
-need a login. Reading posts comes next, then writing and the rest.
+Three stages of the plan are built. The foundation: routing, the generated
+API client, the page layout, error handling and tests. Accounts: sign up,
+log in, stay logged in across reloads and tabs, log out. And reading: the
+feed with its filters, a post with its Markdown rendered safely, and
+profiles. Writing posts comes next, then comments and the rest.
 
 ## Getting started
 
@@ -87,6 +88,18 @@ cookie for a new one (`src/features/auth/session.ts`).
   (`src/lib/permissions.ts`) from the permissions the API lists, never by
   role name. It decides what is shown; the API decides what is allowed.
 
+### Showing what users wrote
+
+Everything a user typed is untrusted. Titles, summaries, names, tags and
+bios are rendered as text. A post's body is Markdown and goes through
+`<Markdown>` (`src/components/markdown.tsx`), which builds nothing from
+HTML inside it, drops `javascript:` and similar addresses, and sanitizes
+the result. Its styles are the `.markdown` rules in `src/index.css`.
+
+A page for something that doesn't exist, was deleted, or may not be seen
+by this reader (someone else's draft) is the same "not found" page: a
+loader wraps its request in `orNotFound` (`src/api/not-found.ts`).
+
 Every failed request is thrown as an `ApiError` (`src/api/errors.ts`): the
 status, the API's message, the messages per field for invalid input, how
 long a 429 asks to wait, and the request id to quote in a report.
@@ -126,10 +139,11 @@ There are two sets:
 - `bun run test:e2e` (`e2e/`) answers the pages' requests itself, needs no
   API, and runs in CI.
 - `bun run test:e2e:api` (`e2e-api/`) runs the flows that need the real API:
-  sign-up, login, two tabs. It starts its own API from `../fastapi_blog` on
+  sign-up, login, two tabs, reading posts. It starts its own API from `../fastapi_blog` on
   port 8010, in a database named `e2e_draftwork_web` on the server the API's
-  `.env` points at, and drops that database before and after. It is not in
-  CI yet.
+  `.env` points at, and drops that database before and after. It makes an
+  administrator with the API's seed command, since only an administrator
+  can hand out the role that writes posts. It is not in CI yet.
 
 - **Lint** is ESLint with the TypeScript, React Hooks and React Refresh
   rules, plus sorted imports and exports (`eslint.config.js`).

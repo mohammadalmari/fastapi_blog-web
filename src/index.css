@@ -145,3 +145,113 @@
     @apply font-sans;
     }
 }
+
+/*
+ * A post's body: Markdown written by a user (see components/markdown.tsx).
+ * Set in the reading face at a comfortable measure; headings go back to the
+ * interface face. Margins are on the top only, so blocks stack evenly.
+ */
+@layer components {
+  .markdown {
+    @apply max-w-[66ch] font-serif text-[19px] leading-[1.72] break-words;
+  }
+  .markdown > * + * {
+    @apply mt-5;
+  }
+  .markdown :is(h2, h3, h4, h5) {
+    @apply mt-10 font-sans leading-[1.15] font-semibold tracking-tight;
+  }
+  .markdown h2 {
+    @apply text-3xl;
+  }
+  .markdown h3 {
+    @apply text-2xl;
+  }
+  .markdown :is(h4, h5) {
+    @apply text-xl;
+  }
+  .markdown :is(h2, h3, h4, h5) + * {
+    @apply mt-3;
+  }
+  .markdown a {
+    @apply text-primary underline underline-offset-4;
+  }
+  .markdown :is(ul, ol) {
+    @apply flex flex-col gap-1.5 ps-6;
+  }
+  .markdown ul {
+    @apply list-disc;
+  }
+  .markdown ol {
+    @apply list-decimal;
+  }
+  .markdown li > :is(ul, ol) {
+    @apply mt-1.5;
+  }
+  /* The highlighter's yellow: a quote is worth a second look. */
+  .markdown blockquote {
+    @apply border-s-4 border-highlight ps-5 italic;
+  }
+  .markdown blockquote > * + * {
+    @apply mt-3;
+  }
+  .markdown :not(pre) > code {
+    @apply rounded-sm bg-muted px-1.5 py-0.5 font-mono text-[0.85em];
+  }
+  /* Code is ink on paper turned over: the same dark block in both themes. */
+  .markdown pre {
+    @apply overflow-x-auto rounded-md bg-[#1B2140] px-5 py-4 font-mono text-[15px] leading-relaxed text-[#E9ECFA];
+    direction: ltr;
+    text-align: left;
+  }
+  .markdown img {
+    @apply h-auto max-w-full rounded-md;
+  }
+  .markdown hr {
+    @apply border-border;
+  }
+  .markdown-table {
+    @apply overflow-x-auto;
+  }
+  .markdown table {
+    @apply w-full border-collapse font-sans text-base;
+  }
+  .markdown :is(th, td) {
+    @apply border-b border-border px-3 py-2 text-start align-top;
+  }
+  .markdown th {
+    @apply font-semibold;
+  }
+  .markdown input[type="checkbox"] {
+    @apply me-2;
+  }
+
+  /* highlight.js tokens, in this palette. */
+  .markdown .hljs-comment,
+  .markdown .hljs-quote {
+    @apply text-[#A7AECB] italic;
+  }
+  .markdown .hljs-keyword,
+  .markdown .hljs-selector-tag,
+  .markdown .hljs-built_in,
+  .markdown .hljs-type {
+    @apply text-[#A9B6FF];
+  }
+  .markdown .hljs-string,
+  .markdown .hljs-attr,
+  .markdown .hljs-symbol,
+  .markdown .hljs-addition {
+    @apply text-[#FFE98A];
+  }
+  .markdown .hljs-number,
+  .markdown .hljs-literal,
+  .markdown .hljs-variable,
+  .markdown .hljs-deletion {
+    @apply text-[#FFB3A6];
+  }
+  .markdown .hljs-title,
+  .markdown .hljs-section,
+  .markdown .hljs-name {
+    @apply font-semibold text-white;
+  }
+}

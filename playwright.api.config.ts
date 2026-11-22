@@ -1,5 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import {
+  API_PORT,
+  apiEnv,
+  DROP_DATABASE,
+  WEB_PORT,
+} from "./e2e-api/environment.ts";
+
 // The flows that need the real API: `bun run test:e2e:api`.
 //
 // They start their own API from ../fastapi_blog, on its own port and in its
@@ -8,28 +15,6 @@ import { defineConfig, devices } from "@playwright/test";
 // from one address, and the count lives in the database.
 //
 // Not run in CI yet: this repository's workflow has no API to start.
-
-const WEB_PORT = 4174;
-const API_PORT = 8010;
-export const DATABASE_NAME = "e2e_draftwork_web";
-
-const apiEnv = {
-  DATABASE_NAME,
-  // Development mode: the refresh cookie isn't marked Secure, so it works
-  // over plain http, and passwords need eight characters, not twelve.
-  FASTAPI_DEBUG: "true",
-};
-
-// Refuses any database whose name doesn't start with "e2e_": the address
-// comes from the API's own settings, and this must never drop a real one.
-export const DROP_DATABASE = [
-  "uv run --directory ../fastapi_blog python -c",
-  `"from pymongo import MongoClient;`,
-  `from app.core.settings import get_settings;`,
-  `s = get_settings();`,
-  `assert s.database_name.startswith('e2e_'), s.database_name;`,
-  `MongoClient(s.database_url.get_secret_value()).drop_database(s.database_name)"`,
-].join(" ");
 
 export default defineConfig({
   testDir: "./e2e-api",

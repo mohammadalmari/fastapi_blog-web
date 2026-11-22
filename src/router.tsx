@@ -6,6 +6,7 @@ import type { Session } from "@/features/auth/session";
 
 import { ErrorPage } from "@/components/error-page";
 import { NotFoundPage } from "@/components/not-found-page";
+import { PendingPage } from "@/components/pending-page";
 
 import { routeTree } from "./routeTree.gen";
 
@@ -29,6 +30,10 @@ export function createAppRouter(session: Session) {
     scrollRestoration: true,
     defaultErrorComponent: ErrorPage,
     defaultNotFoundComponent: NotFoundPage,
+    defaultPendingComponent: PendingPage,
+    // Every "not found" looks the same and keeps only the header: a nearer
+    // boundary would show part of a page that doesn't exist.
+    notFoundMode: "root",
     Wrap: ({ children }) => (
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     ),

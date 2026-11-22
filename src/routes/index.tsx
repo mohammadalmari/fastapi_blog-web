@@ -1,31 +1,76 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
+import { postsListTagsOptions } from "@/api/generated/@tanstack/react-query.gen";
+import { PostFeed } from "@/features/posts/components/post-feed";
+import { TagFilter } from "@/features/posts/components/tag-filter";
+import { feedOptions, feedSearchSchema } from "@/features/posts/queries";
+import { SITE_NAME } from "@/lib/site";
+
 import { MarginRow } from "@/components/layout/margin-row";
 
 export const Route = createFileRoute("/")({
-  component: HomePage,
+  validateSearch: feedSearchSchema,
+  loaderDeps: ({ search }) => ({ tag: search.tag, author: search.author }),
+  loader: ({ context, deps }) => {
+    // Started, not awaited: the tag row fills in when it arrives.
+    void context.queryClient.prefetchQuery(postsListTagsOptions());
+    return context.queryClient.ensureInfiniteQueryData(feedOptions(deps));
+  },
+  head: () => ({ meta: [{ title: SITE_NAME }] }),
+  component: FeedPage,
 });
 
-// The feed of posts is built in the next stage of the plan; until then this
-// page says so and points at what can be read.
-function HomePage() {
+const clearLink =
+  "inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4";
+
+function FeedPage() {
+  const { tag, author } = Route.useSearch();
+  const filtered = tag !== undefined || author !== undefined;
+
   return (
-    <MarginRow rail="Posts">
-      <h1 className="max-w-[17ch] text-4xl leading-none font-extrabold tracking-tighter sm:text-6xl">
-        The posts aren&apos;t listed here yet
-      </h1>
-      <p className="mt-5 max-w-[60ch] font-serif text-lg">
-        This page will show what has been published, newest first. The tags
-        already in use are ready to look through.
-      </p>
-      <p className="mt-6">
-        <Link
-          to="/tags"
-          className="inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
-        >
-          See the tags
-        </Link>
-      </p>
-    </MarginRow>
+    <>
+      <TagFilter active={tag} />
+      {filtered ? (
+        <MarginRow contentClassName="pb-2">
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Posts
+            {tag ? (
+              <>
+                {" tagged "}
+                <span dir="auto">{tag}</span>
+              </>
+            ) : null}
+            {author ? (
+              <>
+                {" by "}
+                <span dir="auto">{author}</span>
+              </>
+            ) : null}
+          </h1>
+        </MarginRow>
+      ) : (
+        <h1 className="sr-only">Latest posts</h1>
+      )}
+      <PostFeed
+        filters={{ tag, author }}
+        leadFirst={!filtered}
+        empty={
+          filtered ? (
+            <>
+              <p className="font-serif text-lg">
+                No published post matches that.
+              </p>
+              <Link to="/" className={clearLink}>
+                Show all posts
+              </Link>
+            </>
+          ) : (
+            <p className="font-serif text-lg">
+              Nothing has been published yet.
+            </p>
+          )
+        }
+      />
+    </>
   );
 }

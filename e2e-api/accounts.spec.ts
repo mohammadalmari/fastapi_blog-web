@@ -1,37 +1,26 @@
-import type { APIRequestContext, Page } from "@playwright/test";
+import type { APIRequestContext } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
-const PASSWORD = "Tr4verse-lantern-quilt";
+import type { Account } from "./accounts.ts";
+import {
+  accountLink,
+  createAccount,
+  header,
+  logIn,
+  logInLink,
+  newAccount,
+} from "./accounts.ts";
 
-let made = 0;
-function newAccount() {
-  made += 1;
-  const username = `e2e_${Date.now().toString(36)}_${made}`;
-  return { username, email: `${username}@example.com`, password: PASSWORD };
-}
-
-type Account = ReturnType<typeof newAccount>;
-
-async function createAccount(request: APIRequestContext) {
-  const account = newAccount();
-  const response = await request.post("/api/v1/auth/register", {
-    data: account,
+// One account for the tests that only need "someone who exists": sign-ups
+// are limited per address (see accounts.ts).
+let shared: Account;
+test.beforeAll(async ({ playwright, baseURL }) => {
+  const request: APIRequestContext = await playwright.request.newContext({
+    baseURL,
   });
-  expect(response.status()).toBe(201);
-  return account;
-}
-
-const header = (page: Page) => page.getByRole("navigation", { name: "Main" });
-const accountLink = (page: Page, account: Account) =>
-  header(page).getByRole("link", { name: account.username });
-const logInLink = (page: Page) =>
-  header(page).getByRole("link", { name: "Log in" });
-
-async function logIn(page: Page, account: Account, identifier?: string) {
-  await page.getByLabel("Email or username").fill(identifier ?? account.email);
-  await page.getByLabel("Password").fill(account.password);
-  await page.getByRole("button", { name: "Log in" }).click();
-}
+  shared = await createAccount(request);
+  await request.dispose();
+});
 
 test("signing up logs you in, a reload keeps you in, and logging out lasts", async ({
   page,
@@ -60,9 +49,8 @@ test("signing up logs you in, a reload keeps you in, and logging out lasts", asy
 
 test("a private page sends a visitor to log in, then brings them back", async ({
   page,
-  request,
 }) => {
-  const account = await createAccount(request);
+  const account = shared;
 
   await page.goto("/settings/profile");
 
@@ -82,9 +70,8 @@ test("a private page sends a visitor to log in, then brings them back", async ({
 
 test("a wrong password gets the one message, and no session", async ({
   page,
-  request,
 }) => {
-  const account = await createAccount(request);
+  const account = shared;
 
   await page.goto("/login");
   await logIn(page, { ...account, password: "not-the-password" });
@@ -98,9 +85,8 @@ test("a wrong password gets the one message, and no session", async ({
 
 test("a taken username says so under no field it can't name", async ({
   page,
-  request,
 }) => {
-  const taken = await createAccount(request);
+  const taken = shared;
   const account = newAccount();
 
   await page.goto("/register");
@@ -137,9 +123,8 @@ test("a weak password shows the API's reasons under the password field", async (
 test("two tabs reloading together both stay logged in, and log out together", async ({
   context,
   page,
-  request,
 }) => {
-  const account = await createAccount(request);
+  const account = shared;
   await page.goto("/login");
   await logIn(page, account);
   await expect(accountLink(page, account)).toBeVisible();
@@ -163,9 +148,8 @@ test("two tabs reloading together both stay logged in, and log out together", as
 
 test("a login link can't send you to another site afterwards", async ({
   page,
-  request,
 }) => {
-  const account = await createAccount(request);
+  const account = shared;
 
   await page.goto("/login?redirect=https%3A%2F%2Fevil.example%2Fsteal");
   await logIn(page, account);

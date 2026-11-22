@@ -28,6 +28,11 @@ export default defineConfig([
     },
     rules: {
       "react-refresh/only-export-components": "off",
+      // `({ node, ...props })` is how a prop is kept off a DOM element.
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { ignoreRestSiblings: true },
+      ],
     },
   },
   {
