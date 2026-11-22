@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 
+import { AccountMenu } from "@/components/layout/account-menu";
 import { ThemeSwitch } from "@/components/layout/theme-switch";
 
 const navLink =
@@ -21,6 +22,7 @@ export function SiteHeader() {
         <Link to="/tags" className={navLink}>
           Tags
         </Link>
+        <AccountMenu />
         <ThemeSwitch />
       </nav>
     </header>

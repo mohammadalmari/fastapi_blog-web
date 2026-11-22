@@ -5,6 +5,7 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 
+import type { Session } from "@/features/auth/session";
 import { SITE_NAME } from "@/lib/site";
 
 import { MarginRow } from "@/components/layout/margin-row";
@@ -12,7 +13,10 @@ import { SiteHeader } from "@/components/layout/site-header";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
+  session: Session;
 }>()({
+  // Every guard below can rely on the status being known.
+  beforeLoad: ({ context }) => context.session.ready(),
   head: () => ({ meta: [{ title: SITE_NAME }] }),
   component: RootLayout,
 });

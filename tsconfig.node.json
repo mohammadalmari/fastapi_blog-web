@@ -22,7 +22,9 @@
   "include": [
     "vite.config.ts",
     "playwright.config.ts",
+    "playwright.api.config.ts",
     "openapi-ts.config.ts",
-    "e2e"
+    "e2e",
+    "e2e-api"
   ]
 }

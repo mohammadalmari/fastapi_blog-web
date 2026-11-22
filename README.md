@@ -12,9 +12,10 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-The foundation is in place: routing, the generated API client, the page
-layout, error handling and both kinds of test. One page shows data from the
-API, `/tags`. Accounts come next, then reading, writing and the rest.
+Two stages of the plan are built. The foundation: routing, the generated
+API client, the page layout, error handling and tests. And accounts: sign
+up, log in, stay logged in across reloads and tabs, log out, and pages that
+need a login. Reading posts comes next, then writing and the rest.
 
 ## Getting started
 
@@ -45,7 +46,8 @@ src/
 │   └── layout/     the header and the margin row every page is built from
 ├── lib/            small pure helpers
 └── test/           test setup
-e2e/                Playwright tests
+e2e/                Playwright tests that need no API
+e2e-api/            Playwright tests against the real API
 ```
 
 Every page is rows of `MarginRow`: a narrow rail for what the page knows
@@ -63,6 +65,27 @@ exports the schema from the API's code in `../fastapi_blog` into
 `openapi.json`, then regenerates `src/api/generated/` from it. Run it after
 the API's routes or schemas change, and commit both. They are committed so
 that a build needs neither the API's code nor a running server.
+
+### Staying logged in
+
+The API gives a short-lived access token (fifteen minutes) and a refresh
+cookie that scripts can't read. The app keeps the token in memory only,
+never in `localStorage`, so a reload starts without one and trades the
+cookie for a new one (`src/features/auth/session.ts`).
+
+- Requests go through `createAuthFetch` (`auth-fetch.ts`): it sends the
+  token, and when the API refuses it, gets a new one and sends the request
+  once more.
+- The API lets a refresh cookie be used once and ends the session on a
+  second use. Two tabs refreshing together would do that, so tabs take
+  turns with a lock and tell each other the new token over a channel. Login
+  and logout reach every tab the same way.
+- A page that needs a login goes in `src/routes/_authenticated/`. A visitor
+  is sent to `/login` and brought back afterwards; only paths on this site
+  are accepted as the way back (`src/lib/redirect.ts`).
+- What to show someone is decided by `can(me, "posts:create")`
+  (`src/lib/permissions.ts`) from the permissions the API lists, never by
+  role name. It decides what is shown; the API decides what is allowed.
 
 Every failed request is thrown as an `ApiError` (`src/api/errors.ts`): the
 status, the API's message, the messages per field for invalid input, how
@@ -92,13 +115,21 @@ bun run lint         # lint
 bun run format       # format
 bun run test         # unit and component tests (Vitest)
 bun run test:e2e     # end-to-end tests (Playwright), against a fresh build
+bun run test:e2e:api # the flows that need the real API
 bun run build        # type check, then build into dist/
 bun run preview      # serve the build
 ```
 
 The end-to-end tests need a browser once: `bunx playwright install chromium`.
-Today they answer the pages' requests themselves, so they need no API; flows
-against the real API start with accounts.
+There are two sets:
+
+- `bun run test:e2e` (`e2e/`) answers the pages' requests itself, needs no
+  API, and runs in CI.
+- `bun run test:e2e:api` (`e2e-api/`) runs the flows that need the real API:
+  sign-up, login, two tabs. It starts its own API from `../fastapi_blog` on
+  port 8010, in a database named `e2e_draftwork_web` on the server the API's
+  `.env` points at, and drops that database before and after. It is not in
+  CI yet.
 
 - **Lint** is ESLint with the TypeScript, React Hooks and React Refresh
   rules, plus sorted imports and exports (`eslint.config.js`).

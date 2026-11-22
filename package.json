@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:api": "playwright test -c playwright.api.config.ts",
     "api:generate": "uv run --directory ../fastapi_blog python -m app.scripts.export_openapi --output ../fastapi_blog-web/openapi.json && openapi-ts",
     "preview": "vite preview"
   },

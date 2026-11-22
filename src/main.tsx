@@ -11,8 +11,8 @@ import "./index.css";
 
 import { createAppRouter } from "./router";
 
-setupApiClient();
-const router = createAppRouter();
+const session = setupApiClient();
+const router = createAppRouter(session);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -10,11 +10,29 @@
 
 import { Route as rootRouteImport } from "./routes/__root";
 import { Route as IndexRouteImport } from "./routes/index";
+import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
+import { Route as LoginRouteImport } from "./routes/login";
+import { Route as RegisterRouteImport } from "./routes/register";
 import { Route as TagsRouteImport } from "./routes/tags";
+import { Route as AuthenticatedSettingsProfileRouteImport } from "./routes/_authenticated/settings/profile";
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: "/_authenticated",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const LoginRoute = LoginRouteImport.update({
+  id: "/login",
+  path: "/login",
+  getParentRoute: () => rootRouteImport,
+} as any);
+const RegisterRoute = RegisterRouteImport.update({
+  id: "/register",
+  path: "/register",
   getParentRoute: () => rootRouteImport,
 } as any);
 const TagsRoute = TagsRouteImport.update({
@@ -22,30 +40,56 @@ const TagsRoute = TagsRouteImport.update({
   path: "/tags",
   getParentRoute: () => rootRouteImport,
 } as any);
+const AuthenticatedSettingsProfileRoute =
+  AuthenticatedSettingsProfileRouteImport.update({
+    id: "/settings/profile",
+    path: "/settings/profile",
+    getParentRoute: () => AuthenticatedRoute,
+  } as any);
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
+  "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/login": typeof LoginRoute;
+  "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/_authenticated": typeof AuthenticatedRouteWithChildren;
+  "/login": typeof LoginRoute;
+  "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/_authenticated/settings/profile": typeof AuthenticatedSettingsProfileRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/tags";
+  fullPaths: "/" | "/login" | "/register" | "/tags" | "/settings/profile";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/tags";
-  id: "__root__" | "/" | "/tags";
+  to: "/" | "/login" | "/register" | "/tags" | "/settings/profile";
+  id:
+    | "__root__"
+    | "/"
+    | "/_authenticated"
+    | "/login"
+    | "/register"
+    | "/tags"
+    | "/_authenticated/settings/profile";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren;
+  LoginRoute: typeof LoginRoute;
+  RegisterRoute: typeof RegisterRoute;
   TagsRoute: typeof TagsRoute;
 }
 
@@ -58,6 +102,27 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof IndexRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/_authenticated": {
+      id: "/_authenticated";
+      path: "";
+      fullPath: "/";
+      preLoaderRoute: typeof AuthenticatedRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/login": {
+      id: "/login";
+      path: "/login";
+      fullPath: "/login";
+      preLoaderRoute: typeof LoginRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/register": {
+      id: "/register";
+      path: "/register";
+      fullPath: "/register";
+      preLoaderRoute: typeof RegisterRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/tags": {
       id: "/tags";
       path: "/tags";
@@ -65,11 +130,33 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TagsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/_authenticated/settings/profile": {
+      id: "/_authenticated/settings/profile";
+      path: "/settings/profile";
+      fullPath: "/settings/profile";
+      preLoaderRoute: typeof AuthenticatedSettingsProfileRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute;
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedSettingsProfileRoute: AuthenticatedSettingsProfileRoute,
+};
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+);
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
   TagsRoute: TagsRoute,
 };
 export const routeTree = rootRouteImport
