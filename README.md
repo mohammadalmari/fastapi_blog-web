@@ -12,11 +12,12 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-Three stages of the plan are built. The foundation: routing, the generated
+Four stages of the plan are built. The foundation: routing, the generated
 API client, the page layout, error handling and tests. Accounts: sign up,
-log in, stay logged in across reloads and tabs, log out. And reading: the
-feed with its filters, a post with its Markdown rendered safely, and
-profiles. Writing posts comes next, then comments and the rest.
+log in, stay logged in across reloads and tabs, log out. Reading: the feed
+with its filters, posts with their Markdown rendered safely, profiles. And
+writing: an editor with a live preview, drafts, publishing, and a list of
+your own posts. Comments and likes come next.
 
 ## Getting started
 
@@ -96,6 +97,22 @@ bios are rendered as text. A post's body is Markdown and goes through
 HTML inside it, drops `javascript:` and similar addresses, and sanitizes
 the result. Its styles are the `.markdown` rules in `src/index.css`.
 
+### Writing
+
+`PostEditor` (`src/features/posts/components/post-editor.tsx`) is the form
+behind both `/write` and `/posts/$slug/edit`. Which of its buttons appear
+follows the permissions the API will check (`features/posts/permissions.ts`):
+an author on their own posts, an editor on anyone's, and editing a
+published post only for someone who may also publish it.
+
+- The form's rules mirror the API's so a problem is named before sending:
+  lengths, at most ten tags, tags shown as they will be stored
+  (`features/posts/tags.ts`), no invisible characters in a title
+  (`src/lib/text.ts`). The API checks again and has the last word.
+- A save sends only what changed. Sending back the summary the API wrote
+  would make it the author's, and it would stop following the post.
+- Leaving with unsaved changes asks first.
+
 A page for something that doesn't exist, was deleted, or may not be seen
 by this reader (someone else's draft) is the same "not found" page: a
 loader wraps its request in `orNotFound` (`src/api/not-found.ts`).
@@ -139,7 +156,7 @@ There are two sets:
 - `bun run test:e2e` (`e2e/`) answers the pages' requests itself, needs no
   API, and runs in CI.
 - `bun run test:e2e:api` (`e2e-api/`) runs the flows that need the real API:
-  sign-up, login, two tabs, reading posts. It starts its own API from `../fastapi_blog` on
+  sign-up, login, two tabs, reading and writing posts. It starts its own API from `../fastapi_blog` on
   port 8010, in a database named `e2e_draftwork_web` on the server the API's
   `.env` points at, and drops that database before and after. It makes an
   administrator with the API's seed command, since only an administrator

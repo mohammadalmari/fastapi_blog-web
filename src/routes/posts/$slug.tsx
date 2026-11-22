@@ -1,15 +1,19 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { postsReadPostOptions } from "@/api/generated/@tanstack/react-query.gen";
 import { orNotFound } from "@/api/not-found";
+import { useMe } from "@/features/auth/hooks";
 import { TagLink } from "@/features/posts/components/tag-link";
+import { canEditPost } from "@/features/posts/permissions";
 import { AuthorLink } from "@/features/users/components/author";
 import { count, formatDate } from "@/lib/format";
 import { SITE_NAME } from "@/lib/site";
 
 import { MarginRow } from "@/components/layout/margin-row";
 import { Markdown } from "@/components/markdown";
+
+import { Badge } from "@/components/ui/badge";
 
 const postOptions = (slug: string) => postsReadPostOptions({ path: { slug } });
 
@@ -31,6 +35,7 @@ const EDIT_WORTH_SAYING_MS = 60_000;
 function PostPage() {
   const { slug } = Route.useParams();
   const { data: post } = useSuspenseQuery(postOptions(slug));
+  const me = useMe();
 
   const isDraft = post.status === "draft";
   const date = post.published_at ?? post.created_at;
@@ -45,11 +50,7 @@ function PostPage() {
         contentClassName="pt-7 pb-14"
         rail={
           <>
-            {isDraft ? (
-              <span className="rounded-sm bg-highlight px-2.5 py-0.5 text-[15px] font-semibold text-highlight-foreground">
-                Draft
-              </span>
-            ) : null}
+            {isDraft ? <Badge variant="highlight">Draft</Badge> : null}
             <div>
               <time
                 dateTime={date}
@@ -83,6 +84,15 @@ function PostPage() {
                   </li>
                 ))}
               </ul>
+            ) : null}
+            {canEditPost(me, post) ? (
+              <Link
+                to="/posts/$slug/edit"
+                params={{ slug: post.slug }}
+                className="inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
+              >
+                Edit post
+              </Link>
             ) : null}
           </>
         }

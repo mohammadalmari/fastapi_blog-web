@@ -1,12 +1,16 @@
 import { Link } from "@tanstack/react-router";
 
 import type { PostSummary } from "@/api/generated/types.gen";
+import { useMe } from "@/features/auth/hooks";
 import { TagLink } from "@/features/posts/components/tag-link";
+import { canEditPost } from "@/features/posts/permissions";
 import { AuthorLink } from "@/features/users/components/author";
 import { count, formatDate } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 import { MarginRow } from "@/components/layout/margin-row";
+
+import { Badge } from "@/components/ui/badge";
 
 /**
  * One post in a list: when and by whom in the rail, what it says beside it.
@@ -15,9 +19,12 @@ import { MarginRow } from "@/components/layout/margin-row";
 export function PostListItem({
   post,
   lead = false,
+  own = false,
 }: {
   post: PostSummary;
   lead?: boolean;
+  /** In a list of the reader's own posts: mark drafts, offer to edit. */
+  own?: boolean;
 }) {
   // A draft has no publication date; it only appears in its author's lists.
   const date = post.published_at ?? post.created_at;
@@ -29,6 +36,11 @@ export function PostListItem({
         contentClassName={lead ? "pt-7 pb-10" : undefined}
         rail={
           <>
+            {own && post.status === "draft" ? (
+              <Badge variant="highlight" className="mb-1.5">
+                Draft
+              </Badge>
+            ) : null}
             <time
               dateTime={date}
               className="block font-semibold text-foreground"
@@ -81,8 +93,26 @@ export function PostListItem({
           <span className="text-muted-foreground">
             {count(post.comment_count, "comment")}
           </span>
+          {own ? <EditLink post={post} /> : null}
         </div>
       </MarginRow>
     </article>
+  );
+}
+
+// Its own component so that only a list of the reader's own posts asks who
+// the reader is.
+function EditLink({ post }: { post: PostSummary }) {
+  const me = useMe();
+  if (!canEditPost(me, post)) return null;
+
+  return (
+    <Link
+      to="/posts/$slug/edit"
+      params={{ slug: post.slug }}
+      className="inline-flex min-h-11 items-center font-semibold text-primary underline underline-offset-4"
+    >
+      Edit
+    </Link>
   );
 }

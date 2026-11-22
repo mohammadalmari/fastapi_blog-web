@@ -3,30 +3,32 @@ import type { ReactNode } from "react";
 import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 
 import { PostListItem } from "@/features/posts/components/post-list-item";
-import type { FeedFilters } from "@/features/posts/queries";
-import { feedOptions } from "@/features/posts/queries";
+import type { PostListOptions } from "@/features/posts/queries";
 
 import { MarginRow } from "@/components/layout/margin-row";
 
 import { Button } from "@/components/ui/button";
 
 /**
- * Published posts, newest first, with a button for the next lot. The route
- * that shows it loads `feedOptions(filters)` first.
+ * A list of posts with a button for the next lot. The route that shows it
+ * loads the same `options` first (`feedOptions`, `myPostsOptions`).
  */
 export function PostFeed({
-  filters,
+  options,
   leadFirst = false,
+  own = false,
   empty,
 }: {
-  filters: FeedFilters;
+  options: PostListOptions;
   /** Set the newest post larger than the rest. */
   leadFirst?: boolean;
+  /** The reader's own posts: say which are drafts, and offer to edit. */
+  own?: boolean;
   /** What to say when there is nothing to list. */
   empty: ReactNode;
 }) {
   const { data, hasNextPage, isFetchingNextPage, fetchNextPage, error } =
-    useSuspenseInfiniteQuery(feedOptions(filters));
+    useSuspenseInfiniteQuery(options);
   const posts = data.pages.flatMap((page) => page.items);
 
   if (posts.length === 0) {
@@ -40,6 +42,7 @@ export function PostFeed({
           key={post.id}
           post={post}
           lead={leadFirst && index === 0}
+          own={own}
         />
       ))}
       {hasNextPage ? (

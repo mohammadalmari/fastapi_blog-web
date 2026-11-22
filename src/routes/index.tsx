@@ -52,7 +52,7 @@ function FeedPage() {
         <h1 className="sr-only">Latest posts</h1>
       )}
       <PostFeed
-        filters={{ tag, author }}
+        options={feedOptions({ tag, author })}
         leadFirst={!filtered}
         empty={
           filtered ? (

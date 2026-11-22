@@ -86,7 +86,7 @@ function ProfilePage() {
         <h2 className="text-2xl font-semibold tracking-tight">Posts</h2>
       </MarginRow>
       <PostFeed
-        filters={{ author: username }}
+        options={feedOptions({ author: username })}
         empty={<p className="font-serif text-lg">Nothing published yet.</p>}
       />
     </>

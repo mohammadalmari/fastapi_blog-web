@@ -184,3 +184,16 @@ test("a profile shows the person and their posts; a missing one is 'not found'",
     page.getByRole("heading", { name: "Nothing is written here" })
   ).toBeVisible();
 });
+
+test("the pages for writing send a visitor to log in", async ({ page }) => {
+  await mockReading(page);
+
+  await page.goto("/write");
+  await expect(page).toHaveURL(/\/login\?redirect=%2Fwrite$/);
+
+  await page.goto("/me/posts");
+  await expect(page).toHaveURL(/\/login\?redirect=%2Fme%2Fposts$/);
+
+  await page.goto("/posts/post-1-a1b2c3/edit");
+  await expect(page).toHaveURL(/\/login\?redirect=/);
+});

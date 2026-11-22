@@ -14,9 +14,12 @@ import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
 import { Route as LoginRouteImport } from "./routes/login";
 import { Route as RegisterRouteImport } from "./routes/register";
 import { Route as TagsRouteImport } from "./routes/tags";
+import { Route as AuthenticatedWriteRouteImport } from "./routes/_authenticated/write";
 import { Route as PostsSlugRouteImport } from "./routes/posts/$slug";
 import { Route as UsersUsernameRouteImport } from "./routes/users/$username";
+import { Route as AuthenticatedMePostsRouteImport } from "./routes/_authenticated/me/posts";
 import { Route as AuthenticatedSettingsProfileRouteImport } from "./routes/_authenticated/settings/profile";
+import { Route as AuthenticatedPostsSlugEditRouteImport } from "./routes/_authenticated/posts.$slug.edit";
 
 const IndexRoute = IndexRouteImport.update({
   id: "/",
@@ -42,6 +45,11 @@ const TagsRoute = TagsRouteImport.update({
   path: "/tags",
   getParentRoute: () => rootRouteImport,
 } as any);
+const AuthenticatedWriteRoute = AuthenticatedWriteRouteImport.update({
+  id: "/write",
+  path: "/write",
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
 const PostsSlugRoute = PostsSlugRouteImport.update({
   id: "/posts/$slug",
   path: "/posts/$slug",
@@ -52,10 +60,21 @@ const UsersUsernameRoute = UsersUsernameRouteImport.update({
   path: "/users/$username",
   getParentRoute: () => rootRouteImport,
 } as any);
+const AuthenticatedMePostsRoute = AuthenticatedMePostsRouteImport.update({
+  id: "/me/posts",
+  path: "/me/posts",
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
 const AuthenticatedSettingsProfileRoute =
   AuthenticatedSettingsProfileRouteImport.update({
     id: "/settings/profile",
     path: "/settings/profile",
+    getParentRoute: () => AuthenticatedRoute,
+  } as any);
+const AuthenticatedPostsSlugEditRoute =
+  AuthenticatedPostsSlugEditRouteImport.update({
+    id: "/posts/$slug/edit",
+    path: "/posts/$slug/edit",
     getParentRoute: () => AuthenticatedRoute,
   } as any);
 
@@ -64,18 +83,24 @@ export interface FileRoutesByFullPath {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/write": typeof AuthenticatedWriteRoute;
   "/posts/$slug": typeof PostsSlugRoute;
   "/users/$username": typeof UsersUsernameRoute;
+  "/me/posts": typeof AuthenticatedMePostsRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
+  "/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/write": typeof AuthenticatedWriteRoute;
   "/posts/$slug": typeof PostsSlugRoute;
   "/users/$username": typeof UsersUsernameRoute;
+  "/me/posts": typeof AuthenticatedMePostsRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
+  "/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -84,9 +109,12 @@ export interface FileRoutesById {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/_authenticated/write": typeof AuthenticatedWriteRoute;
   "/posts/$slug": typeof PostsSlugRoute;
   "/users/$username": typeof UsersUsernameRoute;
+  "/_authenticated/me/posts": typeof AuthenticatedMePostsRoute;
   "/_authenticated/settings/profile": typeof AuthenticatedSettingsProfileRoute;
+  "/_authenticated/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -95,18 +123,24 @@ export interface FileRouteTypes {
     | "/login"
     | "/register"
     | "/tags"
+    | "/write"
     | "/posts/$slug"
     | "/users/$username"
-    | "/settings/profile";
+    | "/me/posts"
+    | "/settings/profile"
+    | "/posts/$slug/edit";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
     | "/login"
     | "/register"
     | "/tags"
+    | "/write"
     | "/posts/$slug"
     | "/users/$username"
-    | "/settings/profile";
+    | "/me/posts"
+    | "/settings/profile"
+    | "/posts/$slug/edit";
   id:
     | "__root__"
     | "/"
@@ -114,9 +148,12 @@ export interface FileRouteTypes {
     | "/login"
     | "/register"
     | "/tags"
+    | "/_authenticated/write"
     | "/posts/$slug"
     | "/users/$username"
-    | "/_authenticated/settings/profile";
+    | "/_authenticated/me/posts"
+    | "/_authenticated/settings/profile"
+    | "/_authenticated/posts/$slug/edit";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -166,6 +203,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TagsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/_authenticated/write": {
+      id: "/_authenticated/write";
+      path: "/write";
+      fullPath: "/write";
+      preLoaderRoute: typeof AuthenticatedWriteRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
     "/posts/$slug": {
       id: "/posts/$slug";
       path: "/posts/$slug";
@@ -180,6 +224,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof UsersUsernameRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/_authenticated/me/posts": {
+      id: "/_authenticated/me/posts";
+      path: "/me/posts";
+      fullPath: "/me/posts";
+      preLoaderRoute: typeof AuthenticatedMePostsRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
     "/_authenticated/settings/profile": {
       id: "/_authenticated/settings/profile";
       path: "/settings/profile";
@@ -187,15 +238,28 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthenticatedSettingsProfileRouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
+    "/_authenticated/posts/$slug/edit": {
+      id: "/_authenticated/posts/$slug/edit";
+      path: "/posts/$slug/edit";
+      fullPath: "/posts/$slug/edit";
+      preLoaderRoute: typeof AuthenticatedPostsSlugEditRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedWriteRoute: typeof AuthenticatedWriteRoute;
+  AuthenticatedMePostsRoute: typeof AuthenticatedMePostsRoute;
   AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute;
+  AuthenticatedPostsSlugEditRoute: typeof AuthenticatedPostsSlugEditRoute;
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedWriteRoute: AuthenticatedWriteRoute,
+  AuthenticatedMePostsRoute: AuthenticatedMePostsRoute,
   AuthenticatedSettingsProfileRoute: AuthenticatedSettingsProfileRoute,
+  AuthenticatedPostsSlugEditRoute: AuthenticatedPostsSlugEditRoute,
 };
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
