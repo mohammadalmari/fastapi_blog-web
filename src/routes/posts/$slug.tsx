@@ -4,10 +4,15 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { postsReadPostOptions } from "@/api/generated/@tanstack/react-query.gen";
 import { orNotFound } from "@/api/not-found";
 import { useMe } from "@/features/auth/hooks";
+import { CommentThread } from "@/features/comments/components/comment-thread";
+import { commentsOptions } from "@/features/comments/queries";
+import { LikeButton } from "@/features/likes/components/like-button";
+import { useLikePost } from "@/features/likes/use-like";
 import { TagLink } from "@/features/posts/components/tag-link";
 import { canEditPost } from "@/features/posts/permissions";
 import { AuthorLink } from "@/features/users/components/author";
 import { count, formatDate } from "@/lib/format";
+import { can } from "@/lib/permissions";
 import { SITE_NAME } from "@/lib/site";
 
 import { MarginRow } from "@/components/layout/margin-row";
@@ -18,8 +23,15 @@ import { Badge } from "@/components/ui/badge";
 const postOptions = (slug: string) => postsReadPostOptions({ path: { slug } });
 
 export const Route = createFileRoute("/posts/$slug")({
-  loader: ({ context, params }) =>
-    orNotFound(context.queryClient.ensureQueryData(postOptions(params.slug))),
+  loader: async ({ context, params }) => {
+    const post = await orNotFound(
+      context.queryClient.ensureQueryData(postOptions(params.slug))
+    );
+    // Started, not awaited: the post is what the reader came for, and the
+    // comments fill in below it.
+    void context.queryClient.prefetchInfiniteQuery(commentsOptions(post.id));
+    return post;
+  },
   head: ({ loaderData }) => ({
     meta: [
       { title: loaderData ? `${loaderData.title}, ${SITE_NAME}` : SITE_NAME },
@@ -36,6 +48,7 @@ function PostPage() {
   const { slug } = Route.useParams();
   const { data: post } = useSuspenseQuery(postOptions(slug));
   const me = useMe();
+  const like = useLikePost(post);
 
   const isDraft = post.status === "draft";
   const date = post.published_at ?? post.created_at;
@@ -72,10 +85,20 @@ function PostPage() {
               withAvatar
               className="font-semibold text-foreground"
             />
-            <div>
-              <div>{count(post.like_count, "like")}</div>
-              <div>{count(post.comment_count, "comment")}</div>
-            </div>
+            <LikeButton
+              liked={post.liked_by_me}
+              likes={post.like_count}
+              // A visitor may try: the click takes them to log in.
+              allowed={me === undefined || can(me, "likes:create")}
+              onToggle={like.toggle}
+              error={like.error}
+            />
+            <a
+              href="#comments"
+              className="inline-flex min-h-8 items-center text-primary underline underline-offset-4"
+            >
+              {count(post.comment_count, "comment")}
+            </a>
             {post.tags.length > 0 ? (
               <ul aria-label="Tags" className="flex flex-col">
                 {post.tags.map((tag) => (
@@ -105,6 +128,7 @@ function PostPage() {
         </h1>
         <Markdown className="mt-8">{post.content}</Markdown>
       </MarginRow>
+      <CommentThread post={post} />
     </article>
   );
 }

@@ -6,8 +6,13 @@ export function formatDate(iso: string): string {
   return day.format(new Date(iso));
 }
 
-/** "1 post", "14 posts". */
+const IRREGULAR: Record<string, string> = { reply: "replies" };
+
+/** "1 post", "14 posts", "2 replies". */
 export function count(amount: number, singular: string): string {
-  const word = plural.select(amount) === "one" ? singular : `${singular}s`;
+  const word =
+    plural.select(amount) === "one"
+      ? singular
+      : (IRREGULAR[singular] ?? `${singular}s`);
   return `${amount} ${word}`;
 }

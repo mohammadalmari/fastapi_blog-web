@@ -1,9 +1,9 @@
 import type { APIRequestContext } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
-import type { Account } from "./accounts.ts";
-import { createAccount, logIn, tokenFor } from "./accounts.ts";
-import { promoteToAdmin } from "./environment.ts";
+import type { CreatedAccount } from "./accounts.ts";
+import { logIn, tokenFor } from "./accounts.ts";
+import { people } from "./people.ts";
 
 // Twelve published posts, so the feed (ten at a time) has a second page,
 // and one draft that no visitor may see.
@@ -11,7 +11,9 @@ const PUBLISHED = 12;
 
 type Made = { slug: string; title: string };
 
-let author: Account;
+// Every post here carries the tag "reading", and the tests look only at
+// posts with it: other specs publish posts too.
+let author: CreatedAccount;
 const published: Made[] = [];
 let draft: Made;
 
@@ -36,10 +38,7 @@ async function write(
 
 test.beforeAll(async ({ playwright, baseURL }) => {
   const request = await playwright.request.newContext({ baseURL });
-  // A new account may only read. Writing takes a role, and only the seed
-  // command hands out the first one.
-  author = await createAccount(request);
-  promoteToAdmin(author.email);
+  author = people().admin;
   const token = await tokenFor(request, author);
 
   for (let number = 1; number <= PUBLISHED; number += 1) {
@@ -64,7 +63,11 @@ test.beforeAll(async ({ playwright, baseURL }) => {
     await write(
       request,
       token,
-      { title: "ملاحظات القراءة", content: "نص عربي.", tags: ["عربي"] },
+      {
+        title: "ملاحظات القراءة",
+        content: "نص عربي.",
+        tags: ["عربي", "reading"],
+      },
       true
     )
   );
@@ -80,7 +83,7 @@ test.beforeAll(async ({ playwright, baseURL }) => {
 test("a visitor reads the feed newest first, page by page, without the draft", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?tag=reading");
 
   const headings = page.getByRole("article").getByRole("heading");
   await expect(headings).toHaveCount(10);
@@ -121,7 +124,7 @@ test("a tag in another script works as a filter", async ({ page }) => {
 test("a post opens with its Markdown rendered, and leads to its author's profile", async ({
   page,
 }) => {
-  await page.goto("/");
+  await page.goto("/?tag=reading");
   await page.getByRole("link", { name: "Reading test 12" }).click();
 
   await expect(

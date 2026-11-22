@@ -12,12 +12,13 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-Four stages of the plan are built. The foundation: routing, the generated
+Five stages of the plan are built. The foundation: routing, the generated
 API client, the page layout, error handling and tests. Accounts: sign up,
 log in, stay logged in across reloads and tabs, log out. Reading: the feed
-with its filters, posts with their Markdown rendered safely, profiles. And
-writing: an editor with a live preview, drafts, publishing, and a list of
-your own posts. Comments and likes come next.
+with its filters, posts with their Markdown rendered safely, profiles.
+Writing: an editor with a live preview, drafts, publishing. And taking
+part: comments with one level of replies, and likes on posts and comments.
+Account settings come next, then administration.
 
 ## Getting started
 
@@ -113,6 +114,24 @@ published post only for someone who may also publish it.
   would make it the author's, and it would stop following the post.
 - Leaving with unsaved changes asks first.
 
+### Comments and likes
+
+The thread under a post is `CommentThread`
+(`src/features/comments/components/`). Comments are plain text, shown with
+their line breaks; replies are fetched when a reader asks for them, and go
+one level deep, as in the API.
+
+- A like shows the moment it is clicked and is taken back if the API
+  refuses it (`src/features/likes/use-like.ts`). The request states the
+  result, `PUT` to like and `DELETE` to take it back, never "toggle".
+- A new comment, an edit or a like changes the comments already fetched
+  (`features/comments/cache.ts`) instead of fetching every page again.
+- Deleting a comment that has replies leaves a placeholder, so the replies
+  keep their place; the API removes the placeholder with its last reply.
+- Only its writer edits a comment. Its writer or a moderator deletes it.
+- A visitor who clicks Like, or wants to comment, is sent to log in and
+  brought back to the post.
+
 A page for something that doesn't exist, was deleted, or may not be seen
 by this reader (someone else's draft) is the same "not found" page: a
 loader wraps its request in `orNotFound` (`src/api/not-found.ts`).
@@ -156,11 +175,13 @@ There are two sets:
 - `bun run test:e2e` (`e2e/`) answers the pages' requests itself, needs no
   API, and runs in CI.
 - `bun run test:e2e:api` (`e2e-api/`) runs the flows that need the real API:
-  sign-up, login, two tabs, reading and writing posts. It starts its own API from `../fastapi_blog` on
+  sign-up, login, two tabs, reading and writing posts, comments and likes.
+  It starts its own API from `../fastapi_blog` on
   port 8010, in a database named `e2e_draftwork_web` on the server the API's
-  `.env` points at, and drops that database before and after. It makes an
-  administrator with the API's seed command, since only an administrator
-  can hand out the role that writes posts. It is not in CI yet.
+  `.env` points at, and drops that database before and after. Three
+  accounts (an administrator, an author, a reader) are made once per run
+  and shared (`e2e-api/people.ts`), because the API allows ten sign-ups an
+  hour from one address. It is not in CI yet.
 
 - **Lint** is ESLint with the TypeScript, React Hooks and React Refresh
   rules, plus sorted imports and exports (`eslint.config.js`).

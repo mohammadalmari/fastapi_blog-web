@@ -13,6 +13,15 @@ describe("count", () => {
   });
 });
 
+describe("count, for a word with its own plural", () => {
+  it.each([
+    [1, "1 reply"],
+    [2, "2 replies"],
+  ])("%i -> %s", (amount, expected) => {
+    expect(count(amount, "reply")).toBe(expected);
+  });
+});
+
 describe("formatDate", () => {
   it("writes the day, a short month and the year", () => {
     // Noon, so the reader's time zone can't move it to another day.

@@ -43,6 +43,10 @@ export async function mockReading(
   } = () => ({ items: [], next_cursor: null })
 ) {
   await page.route("**/api/v1/tags", (route) => route.fulfill({ json: tags }));
+  // No comments, on any post, unless a test answers this itself.
+  await page.route(/\/api\/v1\/posts\/[^/]+\/comments/, (route) =>
+    route.fulfill({ json: { items: [], next_cursor: null } })
+  );
   await page.route(/\/api\/v1\/posts(\?.*)?$/, (route) =>
     route.fulfill({ json: feed(new URL(route.request().url()).searchParams) })
   );

@@ -197,3 +197,26 @@ test("the pages for writing send a visitor to log in", async ({ page }) => {
   await page.goto("/posts/post-1-a1b2c3/edit");
   await expect(page).toHaveURL(/\/login\?redirect=/);
 });
+
+test("a visitor who likes a post is sent to log in, to come back to it", async ({
+  page,
+}) => {
+  await mockReading(page);
+  await page.route("**/api/v1/posts/post-1-a1b2c3", (route) =>
+    route.fulfill({ json: post(1, { content: "Text.", like_count: 3 }) })
+  );
+  let sent = false;
+  await page.route("**/api/v1/posts/*/like", (route) => {
+    sent = true;
+    return route.fulfill({
+      status: 401,
+      json: { detail: "Not authenticated" },
+    });
+  });
+
+  await page.goto("/posts/post-1-a1b2c3");
+  await page.getByRole("button", { name: "Like, 3" }).click();
+
+  await expect(page).toHaveURL(/\/login\?redirect=%2Fposts%2Fpost-1-a1b2c3$/);
+  expect(sent).toBe(false);
+});

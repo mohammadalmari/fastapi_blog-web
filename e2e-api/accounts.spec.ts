@@ -1,25 +1,19 @@
-import type { APIRequestContext } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
-import type { Account } from "./accounts.ts";
+import type { CreatedAccount } from "./accounts.ts";
 import {
   accountLink,
-  createAccount,
   header,
   logIn,
   logInLink,
   newAccount,
 } from "./accounts.ts";
+import { people } from "./people.ts";
 
-// One account for the tests that only need "someone who exists": sign-ups
-// are limited per address (see accounts.ts).
-let shared: Account;
-test.beforeAll(async ({ playwright, baseURL }) => {
-  const request: APIRequestContext = await playwright.request.newContext({
-    baseURL,
-  });
-  shared = await createAccount(request);
-  await request.dispose();
+// Someone who exists, for the tests that aren't about signing up.
+let shared: CreatedAccount;
+test.beforeAll(() => {
+  shared = people().reader;
 });
 
 test("signing up logs you in, a reload keeps you in, and logging out lasts", async ({

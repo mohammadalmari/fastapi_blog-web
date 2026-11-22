@@ -2,14 +2,8 @@ import type { Browser } from "@playwright/test";
 import { expect, test } from "@playwright/test";
 
 import type { CreatedAccount } from "./accounts.ts";
-import {
-  createAccount,
-  giveRole,
-  header,
-  logIn,
-  tokenFor,
-} from "./accounts.ts";
-import { promoteToAdmin } from "./environment.ts";
+import { header, logIn, tokenFor } from "./accounts.ts";
+import { people } from "./people.ts";
 
 // An author, with exactly the "author" role: their own posts and nothing
 // else. And an administrator's post, which the author may read but not edit.
@@ -18,12 +12,9 @@ let someoneElses: { slug: string; title: string };
 
 test.beforeAll(async ({ playwright, baseURL }) => {
   const request = await playwright.request.newContext({ baseURL });
-  const admin = await createAccount(request);
-  promoteToAdmin(admin.email);
+  const { admin } = people();
+  author = people().author;
   const adminToken = await tokenFor(request, admin);
-
-  author = await createAccount(request);
-  await giveRole(request, adminToken, author, "author");
 
   const headers = { Authorization: `Bearer ${adminToken}` };
   const created = await request.post("/api/v1/posts", {

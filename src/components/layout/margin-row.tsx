@@ -29,7 +29,9 @@ export function MarginRow({
     <div className={cn("flex flex-wrap", className)}>
       <div
         className={cn(
-          "flex-[0_0_168px] pt-8 pr-6 text-sm leading-relaxed text-muted-foreground",
+          // min-w-0: a long name wraps inside the rail. Without it the rail
+          // grows to fit, and the margin line steps sideways on that row.
+          "min-w-0 flex-[0_0_168px] pt-8 pr-6 text-sm leading-relaxed text-muted-foreground",
           railClassName
         )}
       >

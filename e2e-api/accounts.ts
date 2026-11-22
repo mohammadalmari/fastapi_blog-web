@@ -4,8 +4,8 @@ import { expect } from "@playwright/test";
 export const PASSWORD = "Tr4verse-lantern-quilt";
 
 // The API allows ten sign-ups an hour from one address, and a whole run
-// comes from one. Make an account only when a test needs one of its own;
-// otherwise share one per file (see `test.beforeAll` in the specs).
+// comes from one. Use the shared accounts in people.ts; make one here only
+// when signing up is the thing under test.
 let made = 0;
 export function newAccount() {
   made += 1;

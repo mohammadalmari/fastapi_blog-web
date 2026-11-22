@@ -18,6 +18,7 @@ import {
 
 export default defineConfig({
   testDir: "./e2e-api",
+  globalSetup: "./e2e-api/global-setup.ts",
   globalTeardown: "./e2e-api/global-teardown.ts",
   // One at a time: the tests share one API and its sign-up allowance.
   workers: 1,
