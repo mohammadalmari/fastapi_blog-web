@@ -12,9 +12,9 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-The project is set up and its dependencies are installed, but no page is
-built yet: `src/` still holds the starter screen. The router, the API
-client, the dev proxy to the API and the test setup are the next steps.
+The foundation is in place: routing, the generated API client, the page
+layout, error handling and both kinds of test. One page shows data from the
+API, `/tags`. Accounts come next, then reading, writing and the rest.
 
 ## Getting started
 
@@ -25,8 +25,48 @@ bun run dev
 
 The dev server prints its address, http://localhost:5173 by default.
 
-The app will need the API running in debug mode on http://127.0.0.1:8000;
-the API's README says how to start it.
+The app needs the API running in debug mode on http://127.0.0.1:8000; the
+API's README says how to start it. The dev server passes `/api`, `/media`
+and `/health` on to it, so the browser only ever talks to one origin. Set
+`API_URL` to point at an API somewhere else.
+
+## Layout
+
+```
+src/
+├── routes/         one file per page; routeTree.gen.ts is generated from them
+├── api/
+│   ├── generated/  the client, generated from openapi.json; never edited
+│   ├── client.ts   sets the client up, once
+│   └── errors.ts   one error shape for every failed request
+├── features/       queries and components, a folder per API feature
+├── components/
+│   ├── ui/         shadcn/ui components, added by its CLI
+│   └── layout/     the header and the margin row every page is built from
+├── lib/            small pure helpers
+└── test/           test setup
+e2e/                Playwright tests
+```
+
+Every page is rows of `MarginRow`: a narrow rail for what the page knows
+about the writing (dates, authors, counts, actions), the blue margin line,
+then the writing itself. The colours and the two typefaces are set in
+`src/index.css`.
+
+### The API client
+
+```bash
+bun run api:generate
+```
+
+exports the schema from the API's code in `../fastapi_blog` into
+`openapi.json`, then regenerates `src/api/generated/` from it. Run it after
+the API's routes or schemas change, and commit both. They are committed so
+that a build needs neither the API's code nor a running server.
+
+Every failed request is thrown as an `ApiError` (`src/api/errors.ts`): the
+status, the API's message, the messages per field for invalid input, how
+long a 429 asks to wait, and the request id to quote in a report.
 
 ## Stack
 
@@ -50,9 +90,15 @@ so a server rendering the pages could not tell who is logged in.
 bun run typecheck    # type check
 bun run lint         # lint
 bun run format       # format
+bun run test         # unit and component tests (Vitest)
+bun run test:e2e     # end-to-end tests (Playwright), against a fresh build
 bun run build        # type check, then build into dist/
 bun run preview      # serve the build
 ```
+
+The end-to-end tests need a browser once: `bunx playwright install chromium`.
+Today they answer the pages' requests themselves, so they need no API; flows
+against the real API start with accounts.
 
 - **Lint** is ESLint with the TypeScript, React Hooks and React Refresh
   rules, plus sorted imports and exports (`eslint.config.js`).
@@ -60,8 +106,8 @@ bun run preview      # serve the build
 - **Format** is Prettier with the Tailwind plugin, which also sorts class
   names inside `cn()` and `cva()` (`.prettierrc`).
 
-Format, lint, type check and build also run on GitHub for every push to
-`main` and every pull request
+Format, lint, type check, build and both sets of tests also run on GitHub
+for every push to `main` and every pull request
 ([.github/workflows/ci.yml](.github/workflows/ci.yml)), with `--check` on
 the formatter and `--frozen-lockfile` on the install, so unformatted code or
 a stale `bun.lock` fails.

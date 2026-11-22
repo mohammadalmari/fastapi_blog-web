@@ -48,4 +48,14 @@ jobs:
       - name: Build
         run: bun run build
 
-      # Tests join here once Vitest and Playwright are set up.
+      - name: Unit tests
+        run: bun run test
+
+      # Only the browser the tests use, with the system libraries it needs.
+      - name: Install the test browser
+        run: bunx playwright install --with-deps chromium
+
+      # Builds again and serves the build. These need no API: the tests
+      # answer the pages' requests themselves.
+      - name: End-to-end tests
+        run: bun run test:e2e

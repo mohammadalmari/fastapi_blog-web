@@ -7,7 +7,14 @@ import tseslint from "typescript-eslint";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-  globalIgnores(["dist"]),
+  // Generated files are not ours to lint: they are rewritten on every run.
+  globalIgnores([
+    "dist",
+    "src/api/generated",
+    "src/routeTree.gen.ts",
+    "playwright-report",
+    "test-results",
+  ]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [

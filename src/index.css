@@ -1,13 +1,19 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/literata";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    /* Titles and the interface. */
+    --font-sans: 'Bricolage Grotesque Variable', system-ui, sans-serif;
+    /* Anything read at length: posts, comments, summaries. */
+    --font-serif: 'Literata Variable', Georgia, serif;
+    --color-highlight-foreground: var(--highlight-foreground);
+    --color-highlight: var(--highlight);
     --color-sidebar-ring: var(--sidebar-ring);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,73 +54,84 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/*
+ * The palette has two colours with a job each. Blue (primary) is the
+ * editor's pencil: links, buttons and the margin line. Yellow (highlight)
+ * marks what is unfinished or worth a second look: a draft, a warning.
+ * The ground is a cool paper grey with blue-black ink.
+ */
 :root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
+    --background: #F5F6F8;
+    --foreground: #1B2140;
+    --card: #FFFFFF;
+    --card-foreground: #1B2140;
+    --popover: #FFFFFF;
+    --popover-foreground: #1B2140;
+    --primary: #2742F5;
+    --primary-foreground: #FFFFFF;
+    --secondary: #E3E7FF;
+    --secondary-foreground: #1B2A9E;
+    --muted: #E9EBF2;
+    --muted-foreground: #565D73;
+    --accent: #E3E7FF;
+    --accent-foreground: #1B2A9E;
+    --destructive: #A8201A;
+    --highlight: #FFE14D;
+    --highlight-foreground: #1B2140;
+    --border: #C9CEDD;
+    --input: #8C93AB;
+    --ring: #2742F5;
+    --chart-1: #2742F5;
+    --chart-2: #1B2A9E;
+    --chart-3: #565D73;
+    --chart-4: #8C93AB;
+    --chart-5: #FFE14D;
+    --radius: 0.25rem;
+    --sidebar: #FFFFFF;
+    --sidebar-foreground: #1B2140;
+    --sidebar-primary: #2742F5;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #E3E7FF;
+    --sidebar-accent-foreground: #1B2A9E;
+    --sidebar-border: #C9CEDD;
+    --sidebar-ring: #2742F5;
 }
 
+/* The same roles on a dark ground. Not yet reviewed as a design. */
 .dark {
-    --background: oklch(0.145 0 0);
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
+    --background: #101326;
+    --foreground: #E9ECFA;
+    --card: #171B33;
+    --card-foreground: #E9ECFA;
+    --popover: #171B33;
+    --popover-foreground: #E9ECFA;
+    --primary: #93A3FF;
+    --primary-foreground: #101326;
+    --secondary: #232A52;
+    --secondary-foreground: #D5DBFF;
+    --muted: #1C2140;
+    --muted-foreground: #A7AECB;
+    --accent: #232A52;
+    --accent-foreground: #D5DBFF;
+    --destructive: #FF8E85;
+    --highlight: #FFE14D;
+    --highlight-foreground: #1B2140;
+    --border: #2E3560;
+    --input: #5A6294;
+    --ring: #93A3FF;
+    --chart-1: #93A3FF;
+    --chart-2: #D5DBFF;
+    --chart-3: #A7AECB;
+    --chart-4: #5A6294;
+    --chart-5: #FFE14D;
+    --sidebar: #171B33;
+    --sidebar-foreground: #E9ECFA;
+    --sidebar-primary: #93A3FF;
+    --sidebar-primary-foreground: #101326;
+    --sidebar-accent: #232A52;
+    --sidebar-accent-foreground: #D5DBFF;
+    --sidebar-border: #2E3560;
+    --sidebar-ring: #93A3FF;
 }
 
 @layer base {

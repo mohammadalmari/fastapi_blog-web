@@ -17,3 +17,11 @@
 # misc
 .DS_Store
 /next-env.d.ts
+# generated
+/dist
+/src/api/generated
+/src/routeTree.gen.ts
+
+# test output
+/playwright-report
+/test-results
