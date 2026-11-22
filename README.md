@@ -12,13 +12,10 @@ React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 
 ## Status
 
-Six stages of the plan are built. The foundation: routing, the generated
-API client, the page layout, error handling and tests. Accounts: sign up,
-log in, stay logged in across reloads and tabs, log out. Reading: the feed
-with its filters, posts with their Markdown rendered safely, profiles.
-Writing: an editor with a live preview, drafts, publishing. Taking part:
-comments, replies and likes. And account settings: profile, picture,
-password, log out everywhere. Administration comes next.
+Seven stages of the plan are built: the foundation, accounts, reading,
+writing, comments and likes, account settings, and administration. What is
+left is hardening: accessibility, small screens, dark mode, the bundle,
+running the real-API tests in CI, and production serving.
 
 ## Getting started
 
@@ -147,6 +144,22 @@ and `/settings/security` changes the password and logs out everywhere.
 - The profile form sends only what changed; an emptied name or bio is sent
   as an empty string, which clears it.
 
+### Administration
+
+`/admin/users` lists every account: change its roles, deactivate or
+reactivate it. `/admin/roles` creates, edits and deletes roles, choosing
+permissions from the API's catalog, each named as the API describes it.
+
+- Nobody hands out what they don't hold (`src/features/rbac/grants.ts`, as
+  the API's `ensure_can_grant`): a role carrying a permission the
+  administrator lacks can be neither given nor taken away, a permission
+  they lack can't be ticked, and an account holding more than they do
+  can't be switched off. Nobody switches off their own account.
+- The API's other refusals ("This would leave no active admin", "Make
+  another role the default instead") are shown as it words them.
+- The admin pages are "not found" to anyone without the permission, and
+  the header shows no link to them.
+
 A page for something that doesn't exist, was deleted, or may not be seen
 by this reader (someone else's draft) is the same "not found" page: a
 loader wraps its request in `orNotFound` (`src/api/not-found.ts`).
@@ -190,13 +203,15 @@ There are two sets:
 - `bun run test:e2e` (`e2e/`) answers the pages' requests itself, needs no
   API, and runs in CI.
 - `bun run test:e2e:api` (`e2e-api/`) runs the flows that need the real API:
-  sign-up, login, two tabs, reading and writing posts, comments and likes, account settings.
+  sign-up, login, two tabs, reading and writing posts, comments and likes, account settings, administration.
   It starts its own API from `../fastapi_blog` on
   port 8010, in a database named `e2e_draftwork_web` on the server the API's
   `.env` points at, and drops that database before and after. Three
   accounts (an administrator, an author, a reader) are made once per run
-  and shared (`e2e-api/people.ts`), because the API allows ten sign-ups an
-  hour from one address. It is not in CI yet.
+  and shared (`e2e-api/people.ts`). Each test arrives from an address of
+  its own (`e2e-api/fixtures.ts`), because the API limits logins and
+  sign-ups per address and a whole run from one would go over. It is not
+  in CI yet.
 
 - **Lint** is ESLint with the TypeScript, React Hooks and React Refresh
   rules, plus sorted imports and exports (`eslint.config.js`).

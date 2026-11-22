@@ -1,8 +1,8 @@
 import type { Browser } from "@playwright/test";
-import { expect, test } from "@playwright/test";
 
 import type { CreatedAccount } from "./accounts.ts";
 import { header, logIn, tokenFor } from "./accounts.ts";
+import { addressFor, expect, test } from "./fixtures.ts";
 import { people } from "./people.ts";
 
 // An author, with exactly the "author" role: their own posts and nothing
@@ -11,7 +11,10 @@ let author: CreatedAccount;
 let someoneElses: { slug: string; title: string };
 
 test.beforeAll(async ({ playwright, baseURL }) => {
-  const request = await playwright.request.newContext({ baseURL });
+  const request = await playwright.request.newContext({
+    baseURL,
+    extraHTTPHeaders: addressFor(import.meta.url),
+  });
   const { admin } = people();
   author = people().author;
   const adminToken = await tokenFor(request, admin);
@@ -29,20 +32,28 @@ test.beforeAll(async ({ playwright, baseURL }) => {
 });
 
 /** A second browser with no login: what everyone else sees. */
-async function asVisitor(browser: Browser, baseURL: string | undefined) {
-  const context = await browser.newContext({ baseURL });
+async function asVisitor(
+  browser: Browser,
+  baseURL: string | undefined,
+  headers: Record<string, string>
+) {
+  const context = await browser.newContext({
+    baseURL,
+    extraHTTPHeaders: headers,
+  });
   return { context, page: await context.newPage() };
 }
 
 const NOT_FOUND = "Nothing is written here";
 
 test("a post goes from draft to published, is edited, unpublished and deleted", async ({
+  visitor: newVisitor,
   page,
   browser,
   baseURL,
 }) => {
   const title = `From draft to gone ${Date.now().toString(36)}`;
-  const visitor = await asVisitor(browser, baseURL);
+  const visitor = await asVisitor(browser, baseURL, newVisitor());
 
   await page.goto("/login");
   await logIn(page, author);

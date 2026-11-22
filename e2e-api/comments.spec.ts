@@ -1,8 +1,8 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "@playwright/test";
 
 import type { CreatedAccount } from "./accounts.ts";
 import { logIn, tokenFor } from "./accounts.ts";
+import { addressFor, expect, test } from "./fixtures.ts";
 import type { People } from "./people.ts";
 import { people } from "./people.ts";
 
@@ -17,7 +17,10 @@ const posts: Record<"talk" | "likes" | "moderation", string> = {
 
 test.beforeAll(async ({ playwright, baseURL }) => {
   who = people();
-  const request = await playwright.request.newContext({ baseURL });
+  const request = await playwright.request.newContext({
+    baseURL,
+    extraHTTPHeaders: addressFor(import.meta.url),
+  });
   const headers = {
     Authorization: `Bearer ${await tokenFor(request, who.admin)}`,
   };
@@ -162,6 +165,7 @@ test("a visitor who tries to like or comment logs in and comes back", async ({
 
 // A moderator may remove what someone wrote. Nobody may reword it.
 test("a moderator can delete someone's comment but not edit it; another reader can do neither", async ({
+  visitor,
   page,
   browser,
   baseURL,
@@ -172,7 +176,10 @@ test("a moderator can delete someone's comment but not edit it; another reader c
   await expect(comments(page).first()).toContainText("The reader's words.");
 
   // Another person without the permission: the author of other posts.
-  const other = await browser.newContext({ baseURL });
+  const other = await browser.newContext({
+    baseURL,
+    extraHTTPHeaders: visitor(),
+  });
   const otherPage = await other.newPage();
   await openAs(otherPage, who.author, posts.moderation);
   const seenByOther = comments(otherPage).first();
@@ -183,7 +190,10 @@ test("a moderator can delete someone's comment but not edit it; another reader c
   ).toBeHidden();
   await other.close();
 
-  const moderator = await browser.newContext({ baseURL });
+  const moderator = await browser.newContext({
+    baseURL,
+    extraHTTPHeaders: visitor(),
+  });
   const moderatorPage = await moderator.newPage();
   await openAs(moderatorPage, who.admin, posts.moderation);
   const seenByModerator = comments(moderatorPage).first();

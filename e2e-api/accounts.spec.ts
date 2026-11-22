@@ -1,5 +1,3 @@
-import { expect, test } from "@playwright/test";
-
 import type { CreatedAccount } from "./accounts.ts";
 import {
   accountLink,
@@ -8,6 +6,7 @@ import {
   logInLink,
   newAccount,
 } from "./accounts.ts";
+import { expect, test } from "./fixtures.ts";
 import { people } from "./people.ts";
 
 // Someone who exists, for the tests that aren't about signing up.

@@ -14,6 +14,10 @@ import {
 // starts empty. Starting empty matters: the API allows ten sign-ups an hour
 // from one address, and the count lives in the database.
 //
+// The API trusts the address its proxy (the app's preview server, on this
+// machine) forwards, as behind a real proxy; e2e-api/fixtures.ts gives each
+// test an address of its own that way. See there for why.
+//
 // Not run in CI yet: this repository's workflow has no API to start.
 
 export default defineConfig({
@@ -30,7 +34,7 @@ export default defineConfig({
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: [
     {
-      command: `${DROP_DATABASE} && uv run --directory ../fastapi_blog fastapi dev --port ${API_PORT} --no-reload`,
+      command: `${DROP_DATABASE} && uv run --directory ../fastapi_blog fastapi dev --port ${API_PORT} --no-reload --forwarded-allow-ips 127.0.0.1`,
       url: `http://127.0.0.1:${API_PORT}/health`,
       env: apiEnv,
       reuseExistingServer: false,

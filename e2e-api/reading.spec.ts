@@ -1,8 +1,8 @@
 import type { APIRequestContext } from "@playwright/test";
-import { expect, test } from "@playwright/test";
 
 import type { CreatedAccount } from "./accounts.ts";
 import { logIn, tokenFor } from "./accounts.ts";
+import { addressFor, expect, test } from "./fixtures.ts";
 import { people } from "./people.ts";
 
 // Twelve published posts, so the feed (ten at a time) has a second page,
@@ -37,7 +37,10 @@ async function write(
 }
 
 test.beforeAll(async ({ playwright, baseURL }) => {
-  const request = await playwright.request.newContext({ baseURL });
+  const request = await playwright.request.newContext({
+    baseURL,
+    extraHTTPHeaders: addressFor(import.meta.url),
+  });
   author = people().admin;
   const token = await tokenFor(request, author);
 

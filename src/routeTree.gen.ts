@@ -14,12 +14,18 @@ import { Route as AuthenticatedRouteImport } from "./routes/_authenticated";
 import { Route as LoginRouteImport } from "./routes/login";
 import { Route as RegisterRouteImport } from "./routes/register";
 import { Route as TagsRouteImport } from "./routes/tags";
+import { Route as AuthenticatedAdminRouteImport } from "./routes/_authenticated/admin";
 import { Route as AuthenticatedWriteRouteImport } from "./routes/_authenticated/write";
 import { Route as PostsSlugRouteImport } from "./routes/posts/$slug";
 import { Route as UsersUsernameRouteImport } from "./routes/users/$username";
+import { Route as AuthenticatedAdminRolesRouteImport } from "./routes/_authenticated/admin/roles";
+import { Route as AuthenticatedAdminUsersRouteImport } from "./routes/_authenticated/admin/users";
 import { Route as AuthenticatedMePostsRouteImport } from "./routes/_authenticated/me/posts";
 import { Route as AuthenticatedSettingsProfileRouteImport } from "./routes/_authenticated/settings/profile";
 import { Route as AuthenticatedSettingsSecurityRouteImport } from "./routes/_authenticated/settings/security";
+import { Route as AuthenticatedAdminRolesIndexRouteImport } from "./routes/_authenticated/admin/roles/index";
+import { Route as AuthenticatedAdminRolesRoleIdRouteImport } from "./routes/_authenticated/admin/roles/$roleId";
+import { Route as AuthenticatedAdminRolesNewRouteImport } from "./routes/_authenticated/admin/roles/new";
 import { Route as AuthenticatedPostsSlugEditRouteImport } from "./routes/_authenticated/posts.$slug.edit";
 
 const IndexRoute = IndexRouteImport.update({
@@ -46,6 +52,11 @@ const TagsRoute = TagsRouteImport.update({
   path: "/tags",
   getParentRoute: () => rootRouteImport,
 } as any);
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: "/admin",
+  path: "/admin",
+  getParentRoute: () => AuthenticatedRoute,
+} as any);
 const AuthenticatedWriteRoute = AuthenticatedWriteRouteImport.update({
   id: "/write",
   path: "/write",
@@ -60,6 +71,16 @@ const UsersUsernameRoute = UsersUsernameRouteImport.update({
   id: "/users/$username",
   path: "/users/$username",
   getParentRoute: () => rootRouteImport,
+} as any);
+const AuthenticatedAdminRolesRoute = AuthenticatedAdminRolesRouteImport.update({
+  id: "/roles",
+  path: "/roles",
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any);
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: "/users",
+  path: "/users",
+  getParentRoute: () => AuthenticatedAdminRoute,
 } as any);
 const AuthenticatedMePostsRoute = AuthenticatedMePostsRouteImport.update({
   id: "/me/posts",
@@ -78,6 +99,24 @@ const AuthenticatedSettingsSecurityRoute =
     path: "/settings/security",
     getParentRoute: () => AuthenticatedRoute,
   } as any);
+const AuthenticatedAdminRolesIndexRoute =
+  AuthenticatedAdminRolesIndexRouteImport.update({
+    id: "/",
+    path: "/",
+    getParentRoute: () => AuthenticatedAdminRolesRoute,
+  } as any);
+const AuthenticatedAdminRolesRoleIdRoute =
+  AuthenticatedAdminRolesRoleIdRouteImport.update({
+    id: "/$roleId",
+    path: "/$roleId",
+    getParentRoute: () => AuthenticatedAdminRolesRoute,
+  } as any);
+const AuthenticatedAdminRolesNewRoute =
+  AuthenticatedAdminRolesNewRouteImport.update({
+    id: "/new",
+    path: "/new",
+    getParentRoute: () => AuthenticatedAdminRolesRoute,
+  } as any);
 const AuthenticatedPostsSlugEditRoute =
   AuthenticatedPostsSlugEditRouteImport.update({
     id: "/posts/$slug/edit",
@@ -90,26 +129,37 @@ export interface FileRoutesByFullPath {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/admin": typeof AuthenticatedAdminRouteWithChildren;
   "/write": typeof AuthenticatedWriteRoute;
   "/posts/$slug": typeof PostsSlugRoute;
   "/users/$username": typeof UsersUsernameRoute;
+  "/admin/roles": typeof AuthenticatedAdminRolesRouteWithChildren;
+  "/admin/users": typeof AuthenticatedAdminUsersRoute;
   "/me/posts": typeof AuthenticatedMePostsRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
   "/settings/security": typeof AuthenticatedSettingsSecurityRoute;
+  "/admin/roles/$roleId": typeof AuthenticatedAdminRolesRoleIdRoute;
+  "/admin/roles/new": typeof AuthenticatedAdminRolesNewRoute;
   "/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
+  "/admin/roles/": typeof AuthenticatedAdminRolesIndexRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/admin": typeof AuthenticatedAdminRouteWithChildren;
   "/write": typeof AuthenticatedWriteRoute;
   "/posts/$slug": typeof PostsSlugRoute;
   "/users/$username": typeof UsersUsernameRoute;
+  "/admin/users": typeof AuthenticatedAdminUsersRoute;
   "/me/posts": typeof AuthenticatedMePostsRoute;
   "/settings/profile": typeof AuthenticatedSettingsProfileRoute;
   "/settings/security": typeof AuthenticatedSettingsSecurityRoute;
+  "/admin/roles/$roleId": typeof AuthenticatedAdminRolesRoleIdRoute;
+  "/admin/roles/new": typeof AuthenticatedAdminRolesNewRoute;
   "/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
+  "/admin/roles": typeof AuthenticatedAdminRolesIndexRoute;
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
@@ -118,13 +168,19 @@ export interface FileRoutesById {
   "/login": typeof LoginRoute;
   "/register": typeof RegisterRoute;
   "/tags": typeof TagsRoute;
+  "/_authenticated/admin": typeof AuthenticatedAdminRouteWithChildren;
   "/_authenticated/write": typeof AuthenticatedWriteRoute;
   "/posts/$slug": typeof PostsSlugRoute;
   "/users/$username": typeof UsersUsernameRoute;
+  "/_authenticated/admin/roles": typeof AuthenticatedAdminRolesRouteWithChildren;
+  "/_authenticated/admin/users": typeof AuthenticatedAdminUsersRoute;
   "/_authenticated/me/posts": typeof AuthenticatedMePostsRoute;
   "/_authenticated/settings/profile": typeof AuthenticatedSettingsProfileRoute;
   "/_authenticated/settings/security": typeof AuthenticatedSettingsSecurityRoute;
+  "/_authenticated/admin/roles/$roleId": typeof AuthenticatedAdminRolesRoleIdRoute;
+  "/_authenticated/admin/roles/new": typeof AuthenticatedAdminRolesNewRoute;
   "/_authenticated/posts/$slug/edit": typeof AuthenticatedPostsSlugEditRoute;
+  "/_authenticated/admin/roles/": typeof AuthenticatedAdminRolesIndexRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
@@ -133,26 +189,37 @@ export interface FileRouteTypes {
     | "/login"
     | "/register"
     | "/tags"
+    | "/admin"
     | "/write"
     | "/posts/$slug"
     | "/users/$username"
+    | "/admin/roles"
+    | "/admin/users"
     | "/me/posts"
     | "/settings/profile"
     | "/settings/security"
-    | "/posts/$slug/edit";
+    | "/admin/roles/$roleId"
+    | "/admin/roles/new"
+    | "/posts/$slug/edit"
+    | "/admin/roles/";
   fileRoutesByTo: FileRoutesByTo;
   to:
     | "/"
     | "/login"
     | "/register"
     | "/tags"
+    | "/admin"
     | "/write"
     | "/posts/$slug"
     | "/users/$username"
+    | "/admin/users"
     | "/me/posts"
     | "/settings/profile"
     | "/settings/security"
-    | "/posts/$slug/edit";
+    | "/admin/roles/$roleId"
+    | "/admin/roles/new"
+    | "/posts/$slug/edit"
+    | "/admin/roles";
   id:
     | "__root__"
     | "/"
@@ -160,13 +227,19 @@ export interface FileRouteTypes {
     | "/login"
     | "/register"
     | "/tags"
+    | "/_authenticated/admin"
     | "/_authenticated/write"
     | "/posts/$slug"
     | "/users/$username"
+    | "/_authenticated/admin/roles"
+    | "/_authenticated/admin/users"
     | "/_authenticated/me/posts"
     | "/_authenticated/settings/profile"
     | "/_authenticated/settings/security"
-    | "/_authenticated/posts/$slug/edit";
+    | "/_authenticated/admin/roles/$roleId"
+    | "/_authenticated/admin/roles/new"
+    | "/_authenticated/posts/$slug/edit"
+    | "/_authenticated/admin/roles/";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
@@ -216,6 +289,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof TagsRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/_authenticated/admin": {
+      id: "/_authenticated/admin";
+      path: "/admin";
+      fullPath: "/admin";
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport;
+      parentRoute: typeof AuthenticatedRoute;
+    };
     "/_authenticated/write": {
       id: "/_authenticated/write";
       path: "/write";
@@ -236,6 +316,20 @@ declare module "@tanstack/react-router" {
       fullPath: "/users/$username";
       preLoaderRoute: typeof UsersUsernameRouteImport;
       parentRoute: typeof rootRouteImport;
+    };
+    "/_authenticated/admin/roles": {
+      id: "/_authenticated/admin/roles";
+      path: "/roles";
+      fullPath: "/admin/roles";
+      preLoaderRoute: typeof AuthenticatedAdminRolesRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
+    };
+    "/_authenticated/admin/users": {
+      id: "/_authenticated/admin/users";
+      path: "/users";
+      fullPath: "/admin/users";
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport;
+      parentRoute: typeof AuthenticatedAdminRoute;
     };
     "/_authenticated/me/posts": {
       id: "/_authenticated/me/posts";
@@ -258,6 +352,27 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof AuthenticatedSettingsSecurityRouteImport;
       parentRoute: typeof AuthenticatedRoute;
     };
+    "/_authenticated/admin/roles/": {
+      id: "/_authenticated/admin/roles/";
+      path: "/";
+      fullPath: "/admin/roles/";
+      preLoaderRoute: typeof AuthenticatedAdminRolesIndexRouteImport;
+      parentRoute: typeof AuthenticatedAdminRolesRoute;
+    };
+    "/_authenticated/admin/roles/$roleId": {
+      id: "/_authenticated/admin/roles/$roleId";
+      path: "/$roleId";
+      fullPath: "/admin/roles/$roleId";
+      preLoaderRoute: typeof AuthenticatedAdminRolesRoleIdRouteImport;
+      parentRoute: typeof AuthenticatedAdminRolesRoute;
+    };
+    "/_authenticated/admin/roles/new": {
+      id: "/_authenticated/admin/roles/new";
+      path: "/new";
+      fullPath: "/admin/roles/new";
+      preLoaderRoute: typeof AuthenticatedAdminRolesNewRouteImport;
+      parentRoute: typeof AuthenticatedAdminRolesRoute;
+    };
     "/_authenticated/posts/$slug/edit": {
       id: "/_authenticated/posts/$slug/edit";
       path: "/posts/$slug/edit";
@@ -268,7 +383,39 @@ declare module "@tanstack/react-router" {
   }
 }
 
+interface AuthenticatedAdminRolesRouteChildren {
+  AuthenticatedAdminRolesRoleIdRoute: typeof AuthenticatedAdminRolesRoleIdRoute;
+  AuthenticatedAdminRolesNewRoute: typeof AuthenticatedAdminRolesNewRoute;
+  AuthenticatedAdminRolesIndexRoute: typeof AuthenticatedAdminRolesIndexRoute;
+}
+
+const AuthenticatedAdminRolesRouteChildren: AuthenticatedAdminRolesRouteChildren =
+  {
+    AuthenticatedAdminRolesRoleIdRoute: AuthenticatedAdminRolesRoleIdRoute,
+    AuthenticatedAdminRolesNewRoute: AuthenticatedAdminRolesNewRoute,
+    AuthenticatedAdminRolesIndexRoute: AuthenticatedAdminRolesIndexRoute,
+  };
+
+const AuthenticatedAdminRolesRouteWithChildren =
+  AuthenticatedAdminRolesRoute._addFileChildren(
+    AuthenticatedAdminRolesRouteChildren,
+  );
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminRolesRoute: typeof AuthenticatedAdminRolesRouteWithChildren;
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute;
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminRolesRoute: AuthenticatedAdminRolesRouteWithChildren,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
+};
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren);
+
 interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren;
   AuthenticatedWriteRoute: typeof AuthenticatedWriteRoute;
   AuthenticatedMePostsRoute: typeof AuthenticatedMePostsRoute;
   AuthenticatedSettingsProfileRoute: typeof AuthenticatedSettingsProfileRoute;
@@ -277,6 +424,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedWriteRoute: AuthenticatedWriteRoute,
   AuthenticatedMePostsRoute: AuthenticatedMePostsRoute,
   AuthenticatedSettingsProfileRoute: AuthenticatedSettingsProfileRoute,

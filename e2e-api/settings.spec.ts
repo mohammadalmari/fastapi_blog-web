@@ -1,5 +1,4 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "@playwright/test";
 
 import type { CreatedAccount } from "./accounts.ts";
 import {
@@ -9,6 +8,7 @@ import {
   logIn,
   logInLink,
 } from "./accounts.ts";
+import { addressFor, expect, test } from "./fixtures.ts";
 
 // These tests change an account's name and password, so they get one of
 // their own: the shared accounts must stay as the other specs expect them.
@@ -19,7 +19,10 @@ let account: CreatedAccount;
 const NEW_PASSWORD = "Qu1et-harbor-lantern";
 
 test.beforeAll(async ({ playwright, baseURL }) => {
-  const request = await playwright.request.newContext({ baseURL });
+  const request = await playwright.request.newContext({
+    baseURL,
+    extraHTTPHeaders: addressFor(import.meta.url),
+  });
   account = await createAccount(request);
   await request.dispose();
 });
@@ -29,7 +32,7 @@ async function open(page: Page, path: string) {
   await logIn(page, account);
   // Until the address changes the login form is still on the page, and its
   // "Email or username" box would answer to "Username".
-  await expect(page).toHaveURL(new RegExp(`${path}$`));
+  await expect(page).toHaveURL((url) => url.pathname === path);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 }
 
@@ -153,11 +156,15 @@ test("a picture is uploaded, shown, and removed; a file that isn't one is refuse
 });
 
 test("logging out everywhere ends the session in another browser", async ({
+  visitor,
   page,
   browser,
   baseURL,
 }) => {
-  const elsewhere = await browser.newContext({ baseURL });
+  const elsewhere = await browser.newContext({
+    baseURL,
+    extraHTTPHeaders: visitor(),
+  });
   const otherPage = await elsewhere.newPage();
   await open(otherPage, "/");
   await expect(accountLink(otherPage, account)).toBeVisible();

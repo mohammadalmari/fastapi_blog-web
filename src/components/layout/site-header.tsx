@@ -37,6 +37,15 @@ export function SiteHeader() {
             </Link>
           </>
         ) : null}
+        {can(me, "users:read:any") ? (
+          <Link to="/admin/users" className={navLink}>
+            Admin
+          </Link>
+        ) : can(me, "roles:read") ? (
+          <Link to="/admin/roles" className={navLink}>
+            Admin
+          </Link>
+        ) : null}
         <AccountMenu />
         <ThemeSwitch />
       </nav>

@@ -1,5 +1,4 @@
 import type { QueryKey } from "@tanstack/react-query";
-import { infiniteQueryOptions } from "@tanstack/react-query";
 
 import {
   commentsListCommentsInfiniteQueryKey,
@@ -10,29 +9,13 @@ import {
   commentsListReplies,
 } from "@/api/generated/sdk.gen";
 import type { PageCommentPublic } from "@/api/generated/types.gen";
-
-type Page = { cursor: string | null; signal: AbortSignal };
-
-// The same shape as the lists of posts (features/posts/queries.ts): a page
-// at a time, oldest first, each starting where the last ended.
-function pagedComments(
-  queryKey: QueryKey,
-  fetchPage: (page: Page) => Promise<PageCommentPublic>
-) {
-  return infiniteQueryOptions({
-    queryKey,
-    queryFn: ({ pageParam, signal }) =>
-      fetchPage({ cursor: pageParam, signal }),
-    initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
-  });
-}
+import { pagedOptions } from "@/api/paging";
 
 /** The comments on a post itself, each with its number of replies. */
 export function commentsOptions(postId: string) {
   const path = { post_id: postId };
 
-  return pagedComments(
+  return pagedOptions<PageCommentPublic>(
     commentsListCommentsInfiniteQueryKey({ path }),
     async ({ cursor, signal }) => {
       const { data } = await commentsListComments({
@@ -50,7 +33,7 @@ export function commentsOptions(postId: string) {
 export function repliesOptions(commentId: string) {
   const path = { comment_id: commentId };
 
-  return pagedComments(
+  return pagedOptions<PageCommentPublic>(
     commentsListRepliesInfiniteQueryKey({ path }),
     async ({ cursor, signal }) => {
       const { data } = await commentsListReplies({

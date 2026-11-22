@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { infiniteQueryOptions } from "@tanstack/react-query";
 
 import {
   postsListMyPostsInfiniteQueryKey,
@@ -7,6 +6,7 @@ import {
 } from "@/api/generated/@tanstack/react-query.gen";
 import { postsListMyPosts, postsListPosts } from "@/api/generated/sdk.gen";
 import type { PagePostSummary } from "@/api/generated/types.gen";
+import { pagedOptions } from "@/api/paging";
 
 /** Posts fetched at a time; "Load more posts" asks for the next lot. */
 export const FEED_PAGE_SIZE = 10;
@@ -30,38 +30,14 @@ export const myPostsSearchSchema = z.object({
 
 export type MyPostsFilters = z.infer<typeof myPostsSearchSchema>;
 
-type Page = { cursor: string | null; signal: AbortSignal };
-
-/**
- * A list of posts, a page at a time, each page starting where the last
- * ended.
- *
- * Written out, where other queries use the generated options: the generated
- * infinite options leave the cursor's handling to the caller anyway, and
- * their types don't fit `useSuspenseInfiniteQuery`.
- */
-function pagedPosts(
-  queryKey: readonly unknown[],
-  fetchPage: (page: Page) => Promise<PagePostSummary>
-) {
-  return infiniteQueryOptions({
-    queryKey,
-    queryFn: ({ pageParam, signal }) =>
-      fetchPage({ cursor: pageParam, signal }),
-    initialPageParam: null as string | null,
-    // A cursor belongs to the list and filters that issued it; null ends it.
-    getNextPageParam: (lastPage) => lastPage.next_cursor,
-  });
-}
-
 /** Every list of posts takes these options, whichever list it is. */
-export type PostListOptions = ReturnType<typeof pagedPosts>;
+export type PostListOptions = ReturnType<typeof pagedOptions<PagePostSummary>>;
 
 /** Published posts, newest first. */
 export function feedOptions(filters: FeedFilters = {}): PostListOptions {
   const query = { ...filters, limit: FEED_PAGE_SIZE };
 
-  return pagedPosts(
+  return pagedOptions<PagePostSummary>(
     postsListPostsInfiniteQueryKey({ query }),
     async ({ cursor, signal }) => {
       const { data } = await postsListPosts({
@@ -78,7 +54,7 @@ export function feedOptions(filters: FeedFilters = {}): PostListOptions {
 export function myPostsOptions(filters: MyPostsFilters = {}): PostListOptions {
   const query = { ...filters, limit: FEED_PAGE_SIZE };
 
-  return pagedPosts(
+  return pagedOptions<PagePostSummary>(
     postsListMyPostsInfiniteQueryKey({ query }),
     async ({ cursor, signal }) => {
       const { data } = await postsListMyPosts({
