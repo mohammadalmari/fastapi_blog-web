@@ -1,6 +1,6 @@
-# FastAPI Blog Web
+# Draftwork Blog Web
 
-The web frontend for [FastAPI Blog](https://github.com/mohammadalmari/fastapi_blog),
+The web frontend for [Draftwork Blog](https://github.com/mohammadalmari/fastapi_blog),
 a multi-user blog with roles and permissions. A single-page app that calls
 the API straight from the browser.
 
