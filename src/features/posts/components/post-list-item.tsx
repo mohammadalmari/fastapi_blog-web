@@ -14,7 +14,8 @@ import { Badge } from "@/components/ui/badge";
 
 /**
  * One post in a list: when and by whom in the rail, what it says beside it.
- * The first post of the feed is set larger (`lead`).
+ * The first post of the feed is set larger (`lead`). `FeedSkeleton` copies
+ * its sizes and spacing for the outline shown while the feed loads.
  */
 export function PostListItem({
   post,

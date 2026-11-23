@@ -220,3 +220,41 @@ test("a visitor who likes a post is sent to log in, to come back to it", async (
   await expect(page).toHaveURL(/\/login\?redirect=%2Fposts%2Fpost-1-a1b2c3$/);
   expect(sent).toBe(false);
 });
+
+test("while the feed loads, its outline stands where the posts will be", async ({
+  page,
+}) => {
+  // A returning reader: the page first restores the login, then asks for
+  // the posts. Both are slow enough for the outline to show.
+  await page.addInitScript(() =>
+    localStorage.setItem("draftwork.logged-in", "1")
+  );
+  await page.route("**/api/v1/auth/refresh", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await route.fulfill({ status: 401, json: { detail: "No session" } });
+  });
+  let release = () => {};
+  const held = new Promise<void>((resolve) => (release = resolve));
+  // Registered after mockReading, so this answer is the one used.
+  await mockReading(page);
+  await page.route(/\/api\/v1\/posts(\?.*)?$/, async (route) => {
+    await held;
+    await route.fulfill({
+      json: { items: [post(1), post(2)], next_cursor: null },
+    });
+  });
+
+  await page.goto("/");
+  const outline = page.getByRole("status", { name: "Loading posts" });
+  await expect(outline).toBeVisible();
+  // The frame is drawn around it from the start, header included.
+  await expect(page.getByRole("banner")).toBeVisible();
+  const before = await outline.locator(":scope > *").first().boundingBox();
+  release();
+
+  const lead = page.getByRole("article").first();
+  await expect(lead).toBeVisible();
+  const after = await lead.boundingBox();
+  expect(after?.x).toBe(before?.x);
+  expect(after?.y).toBe(before?.y);
+});

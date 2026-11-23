@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import { postsListTagsOptions } from "@/api/generated/@tanstack/react-query.gen";
+import { FeedSkeleton } from "@/features/posts/components/feed-skeleton";
 import { PostFeed } from "@/features/posts/components/post-feed";
 import { TagFilter } from "@/features/posts/components/tag-filter";
 import { feedOptions, feedSearchSchema } from "@/features/posts/queries";
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/")({
     return context.queryClient.ensureInfiniteQueryData(feedOptions(deps));
   },
   head: () => ({ meta: [{ title: SITE_NAME }] }),
+  pendingComponent: FeedSkeleton,
   component: FeedPage,
 });
 
