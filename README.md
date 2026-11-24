@@ -4,6 +4,8 @@ The web frontend for [Draftwork Blog](https://github.com/mohammadalmari/fastapi_
 a multi-user blog with roles and permissions. A single-page app that calls
 the API straight from the browser.
 
+Live site: https://draftwork-blog.netlify.app/
+
 Built with [Bun](https://bun.sh/) (dependencies), [Vite](https://vite.dev/),
 React and TypeScript, [TanStack Router](https://tanstack.com/router) and
 [TanStack Query](https://tanstack.com/query),
